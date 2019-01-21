@@ -197,7 +197,7 @@
   ;; enable some really cool extensions like C-x C-j(dired-jump)
   (require 'dired-x))
 
-;; ;;; third-party packages
+;;; third-party packages
 (use-package zenburn-theme
   :ensure t
   :config
@@ -256,3 +256,25 @@
 
 (when (file-exists-p custom-file)
   (load custom-file))
+
+;; Functions
+
+(defun save-macro (name)
+  "save a macro. Take a name as argument
+     and save the last defined macro under
+     this name at the end of your .emacs"
+  (interactive "SName of the macro: ")  ; ask for the name of the macro
+  (kmacro-name-last-macro name)         ; use this name for the macro
+  (find-file user-init-file)            ; open ~/.emacs or other user init file
+  (goto-char (point-max))               ; go to the end of the .emacs
+  (newline)                             ; insert a newline
+  (insert-kbd-macro name)               ; copy the macro
+  (newline)                             ; insert a newline
+  (switch-to-buffer nil))               ; return to the initial buffer
+
+;; Macros
+
+(fset 'copy-current-buffer-file-name
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote (":buffer-fi	le-name-" 0 "%d")) arg)))
+
+(global-set-key (kbd "C-x M-f") 'copy-current-buffer-file-name)
