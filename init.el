@@ -276,6 +276,21 @@
   (newline)                             ; insert a newline
   (switch-to-buffer nil))               ; return to the initial buffer
 
+(defun scaffold-react-component (name dir)
+  "Scafollds a React component, creates Folder, file.js and index.js"
+  (interactive  "sComponent Name:
+DDirectory: ")
+  ;; (message "Name is: %s, Age is: %s" name dir) ;
+  (let* ((dir-expanded-file-name (concat dir name))
+	 (file-name-with-extension (concat name ".js"))
+	 (export (concat "export { default } from \"./" name "\"")))
+    (make-directory dir-expanded-file-name)
+    (cd dir-expanded-file-name)
+    (write-region "import React from \"react\"" nil file-name-with-extension)
+    (write-region export nil "index.js")
+    (find-file dir-expanded-file-name))
+  )
+
 ;; Macros
 
 (fset 'copy-current-buffer-file-name
