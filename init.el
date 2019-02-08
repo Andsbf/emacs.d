@@ -132,6 +132,10 @@
 (setq use-package-verbose t)
 
 ;;; built-in packages
+
+;; enable narrow region
+(put 'narrow-to-region 'disabled nil)
+
 (use-package paren
   :config
   (show-paren-mode +1))
@@ -227,13 +231,15 @@
   :ensure t
   :config
   (ivy-mode 1)
- (setq ivy-use-virtual-buffers t)
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-re-buildrs-alist
+      '((t . ivy--regex-ignore-order)))
   (setq enable-recursive-minibuffers t)
   (global-set-key (kbd "C-c C-r") 'ivy-resume))
 
 (use-package expand-region
   :ensure t
-  :bind ("C-x e" . er/expand-region))
+  :bind (("C-c e" . er/expand-region)))
 
 (use-package web-mode
   :ensure t
@@ -261,7 +267,7 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
-;; Functions
+;; My Functions
 
 (defun save-macro (name)
   "save a macro. Take a name as argument
@@ -283,7 +289,7 @@ DDirectory: ")
   ;; (message "Name is: %s, Age is: %s" name dir) ;
   (let* ((dir-expanded-file-name (concat dir name))
 	 (file-name-with-extension (concat name ".js"))
-	 (export (concat "export { default } from \"./" name "\"")))
+	 (export (concat "export { default } from \"./" name "\";")))
     (make-directory dir-expanded-file-name)
     (cd dir-expanded-file-name)
     (write-region "import React from \"react\"" nil file-name-with-extension)
@@ -291,9 +297,17 @@ DDirectory: ")
     (find-file dir-expanded-file-name))
   )
 
-;; Macros
+;;My  Macros
 
 (fset 'copy-current-buffer-file-name
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote (":buffer-fi	le-name-" 0 "%d")) arg)))
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote (":buffer-file-name-" 0 "%d")) arg)))
 
 (global-set-key (kbd "C-x M-f") 'copy-current-buffer-file-name)
+
+(fset 'make-props
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("	 fw={}" 0 "%d")) arg)))
+(global-set-key (kbd "C-c m p") 'make-props)
+
+(fset 'bind-this
+   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("	this. w = this..bind(this);" 0 "%d")) arg)))
+(global-set-key (kbd "C-c m b") 'bind-this)
