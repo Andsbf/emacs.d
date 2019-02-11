@@ -232,7 +232,7 @@
   :config
   (ivy-mode 1)
   (setq ivy-use-virtual-buffers t)
-  (setq ivy-re-buildrs-alist
+  (setq ivy-re-builders-alist
       '((t . ivy--regex-ignore-order)))
   (setq enable-recursive-minibuffers t)
   (global-set-key (kbd "C-c C-r") 'ivy-resume))
