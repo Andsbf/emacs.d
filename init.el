@@ -76,6 +76,7 @@
 ;; meaning) of any files you load.
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 2)            ;; but maintain correct appearance
+(setq js-indent-level 2)
 
 ;; newline at end of file
 (setq require-final-newline t)
@@ -104,7 +105,39 @@
 (set-keyboard-coding-system 'utf-8)
 
 ;; hippie expand is dabbrev expand on steroids
-(setq hippie-expand-try-functions-list '(try-expand-dabbrev
+;; first I define a function for substring matching, so it can match
+(defun try-my-dabbrev-substring (old)
+  (let ((old-fun (symbol-function 'he-dabbrev-search)))
+    (fset 'he-dabbrev-search (symbol-function 'my-dabbrev-substring-search))
+    (unwind-protect
+        (try-expand-dabbrev old)
+      (fset 'he-dabbrev-search old-fun))))
+
+
+(defun my-dabbrev-substring-search (pattern &optional reverse limit)
+  (let ((result ())
+	(regpat (cond ((not hippie-expand-dabbrev-as-symbol)
+		       (concat (regexp-quote pattern) "\\sw+"))
+		      ((eq (char-syntax (aref pattern 0)) ?_)
+		       (concat (regexp-quote pattern) "\\(\\sw\\|\\s_\\)+"))
+		      (t
+		       (concat (regexp-quote pattern)
+			       "\\(\\sw\\|\\s_\\)+")))))
+    (while (and (not result)
+		(if reverse
+		     (re-search-backward regpat limit t)
+		     (re-search-forward regpat limit t)))
+      (setq result (buffer-substring-no-properties (save-excursion
+                                                     (goto-char (match-beginning 0))
+                                                     (skip-syntax-backward "w_")
+                                                     (point))
+						   (match-end 0)))
+      (if (he-string-member result he-tried-table t)
+	  (setq result nil)))     ; ignore if bad prefix or already in table
+    result))
+
+(setq hippie-expand-try-functions-list '(try-my-dabbrev-substring
+                                         try-expand-dabbrev
                                          try-expand-dabbrev-all-buffers
                                          try-expand-dabbrev-from-kill
                                          try-complete-file-name-partially
@@ -215,7 +248,9 @@
 
 (use-package magit
   :ensure t
-  :bind (("C-x g" . magit-status)))
+  :bind (("C-x g" . magit-status))
+  :config
+  (setq magit-save-repository-buffers nil))
 
 (use-package projectile
   :ensure t
