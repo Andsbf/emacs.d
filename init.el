@@ -77,6 +77,7 @@
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 2)            ;; but maintain correct appearance
 (setq js-indent-level 2)
+(setq css-indent-offset 2)
 
 ;; newline at end of file
 (setq require-final-newline t)
@@ -136,7 +137,64 @@
 	  (setq result nil)))     ; ignore if bad prefix or already in table
     result))
 
+;; define flexiable macth expansion
+;; https://www.emacswiki.org/emacs/HippieExpand#toc8
+
+(defun try-expand-flexible-abbrev (old)
+  "Try to complete word using flexible matching.
+
+Flexible matching works by taking the search string and then
+interspersing it with a regexp for any character. So, if you try
+to do a flexible match for `foo' it will match the word
+`findOtherOtter' but also `fixTheBoringOrange' and
+`ifthisisboringstopreadingnow'.
+
+The argument OLD has to be nil the first call of this function, and t
+for subsequent calls (for further possible completions of the same
+string).  It returns t if a new completion is found, nil otherwise."
+  (if (not old)
+      (progn
+	      (he-init-string (he-lisp-symbol-beg) (point))
+	      (if (not (he-string-member he-search-string he-tried-table))
+	          (setq he-tried-table (cons he-search-string he-tried-table)))
+	      (setq he-expand-list
+	            (and (not (equal he-search-string ""))
+		               (he-flexible-abbrev-collect he-search-string)))))
+  (while (and he-expand-list
+	            (he-string-member (car he-expand-list) he-tried-table))
+    (setq he-expand-list (cdr he-expand-list)))
+  (if (null he-expand-list)
+      (progn
+	      (if old (he-reset-string))
+	      ())
+    (progn
+	    (he-substitute-string (car he-expand-list))
+	    (setq he-expand-list (cdr he-expand-list))
+	    t)))
+
+(defun he-flexible-abbrev-collect (str)
+  "Find and collect all words that flex-matches STR.
+See docstring for `try-expand-flexible-abbrev' for information
+about what flexible matching means in this context."
+  (let ((collection nil)
+        (regexp (he-flexible-abbrev-create-regexp str)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward-regexp regexp nil t)
+        ;; Is there a better or quicker way than using
+        ;; `thing-at-point' here?
+        (setq collection (cons (thing-at-point 'word) collection))))
+    collection))
+
+(defun he-flexible-abbrev-create-regexp (str)
+  "Generate regexp for flexible matching of STR.
+See docstring for `try-expand-flexible-abbrev' for information
+about what flexible matching means in this context."
+  (concat "\\b" (mapconcat (lambda (x) (concat "\\w*" (list x))) str "")
+          "\\w*" "\\b"))
+
 (setq hippie-expand-try-functions-list '(try-my-dabbrev-substring
+                                         try-expand-flexible-abbrev
                                          try-expand-dabbrev
                                          try-expand-dabbrev-all-buffers
                                          try-expand-dabbrev-from-kill
@@ -240,6 +298,14 @@
   :config
   (load-theme 'zenburn t))
 
+(zenburn-with-color-variables
+  (custom-theme-set-faces
+   'zenburn
+;;;;; hl-line-mode
+   `(hl-line-face ((t (:background ,zenburn-bg+2 ))))
+   `(hl-line ((t (:background ,zenburn-bg+2 ))))
+   ))
+
 ;; temporarily highlight changes from yanking, etc;;
 (use-package volatile-highlights
   :ensure t
@@ -327,7 +393,7 @@ DDirectory: ")
 	 (export (concat "export { default } from \"./" name "\";")))
     (make-directory dir-expanded-file-name)
     (cd dir-expanded-file-name)
-    (write-region "import React from \"react\"" nil file-name-with-extension)
+    (write-region "import React from \"react\";" nil file-name-with-extension)
     (write-region export nil "index.js")
     (find-file dir-expanded-file-name))
   )
@@ -346,3 +412,6 @@ DDirectory: ")
 (fset 'bind-this
    (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ("	this. w = this..bind(this);" 0 "%d")) arg)))
 (global-set-key (kbd "C-c m b") 'bind-this)
+
+;; set upcase-region function on
+(put 'upcase-region 'disabled nil)
