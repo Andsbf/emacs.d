@@ -383,17 +383,91 @@ about what flexible matching means in this context."
   (newline)                             ; insert a newline
   (switch-to-buffer nil))               ; return to the initial buffer
 
-(defun scaffold-react-component (name dir)
+(defun scaffold-react-component (name dir type)
   "Scafollds a React component, creates Folder, file.js and index.js"
-  (interactive  "sComponent Name:
-DDirectory: ")
-  ;; (message "Name is: %s, Age is: %s" name dir) ;
+  (interactive
+   (list
+    (read-string "Component Name: ")
+    (read-directory-name "Directory:")
+    (let ((completion-ignore-case  t))
+      (completing-read "Choose: " '("Function" "Pure" "Component") nil t))
+    )
+   )
+
+  (setq react-file-template-fn (concat"\
+import React from \"react\";
+import style from \"./style.module.css\";
+import PropTypes from \"prop-types\";
+
+const " name " = () => {
+
+};"
+
+"\n\n"name ".displayName = \""name "\";"
+
+"\n\n"name ".propTypes = {};
+
+export default " name ";"))
+
+  (setq react-file-template-pure (concat"\
+import React, { PureComponent } from \"react\";
+import style from \"./style.module.css\";
+import PropTypes from \"prop-types\";
+
+class " name " extends PureComponent {
+  render() {
+    return(
+      <div> </div>
+    );
+  }
+};"
+
+"\n\n"name ".displayName =  \""name "\";"
+
+"\n\n"name ".propTypes = {};
+
+export default " name ";"))
+
+  (setq react-file-template-class (concat"\
+import React, { Component } from \"react\";
+import style from \"./style.module.css\";
+import PropTypes from \"prop-types\";
+
+class " name " extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+
+    };
+  }
+
+  render() {
+    return(
+      <div> </div>
+    );
+  }
+};"
+
+"\n\n"name ".displayName = \""name "\";"
+
+"\n\n"name ".propTypes = {};
+
+export default " name ";"))
+
+  (cond
+   ((string= type "Function") (setq react-file-template react-file-template-fn))
+   ((string= type "Pure") (setq react-file-template react-file-template-pure))
+   ((string= type "Component") (setq react-file-template react-file-template-class))
+   (t (setq react-file-template react-file-template-class)))
+
   (let* ((dir-expanded-file-name (concat dir name))
 	 (file-name-with-extension (concat name ".js"))
 	 (export (concat "export { default } from \"./" name "\";")))
     (make-directory dir-expanded-file-name)
     (cd dir-expanded-file-name)
-    (write-region "import React from \"react\";" nil file-name-with-extension)
+    (write-region react-file-template nil file-name-with-extension)
+    (write-region "" nil "style.module.css")
     (write-region export nil "index.js")
     (find-file dir-expanded-file-name))
   )
