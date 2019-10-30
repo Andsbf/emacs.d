@@ -489,3 +489,4 @@ export default " name ";"))
 
 ;; set upcase-region function on
 (put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
