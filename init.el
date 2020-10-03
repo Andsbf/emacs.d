@@ -93,6 +93,9 @@
 
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
+      `(("." . ,(concat user-emacs-directory "backups"))))
+
+(setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
@@ -490,3 +493,22 @@ export default " name ";"))
 ;; set upcase-region function on
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+;; toggle maximize buffer
+(defun toggle-maximize-buffer () "Maximize buffer"
+  (interactive)
+  (if (= 1 (length (window-list)))
+      (jump-to-register '_)
+    (progn
+      (window-configuration-to-register '_)
+      (delete-other-windows))))
+
+;; Bind it to a key.
+(global-set-key (kbd "C-c m b") 'toggle-maximize-buffer)
+(put 'erase-buffer 'disabled nil)
+
+;; remove hash files from projectile search
+(add-to-list 'projectile-globally-ignored-files ".#*")
+
+;; dired defaults
+(setq dired-listing-switches "-aBhl")
