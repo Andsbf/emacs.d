@@ -1,0 +1,11 @@
+((magit-commit nil)
+ (magit-dispatch nil)
+ (magit-ediff nil)
+ (magit-fetch nil)
+ (magit-log
+  ("-n10000" "--grep=precise" "--graph" "--decorate")
+  ("-n256" "--grep=homeprezzo" "--graph" "--decorate")
+  ("-n256" "--grep=homeprezo" "--graph" "--decorate")
+  ("-n256" "--graph" "--decorate"))
+ (magit-log:--grep "precise" "homeprezzo" "homeprezo")
+ (magit-log:-n "10000"))

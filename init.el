@@ -232,6 +232,8 @@ about what flexible matching means in this context."
 ;; enable narrow region
 (put 'narrow-to-region 'disabled nil)
 
+(use-package s)
+
 (use-package paren
   :config
   (show-paren-mode +1))
@@ -300,8 +302,8 @@ about what flexible matching means in this context."
 ;;; third-party packages
 (use-package zenburn-theme
   :ensure t
-  :config
-  (load-theme 'zenburn t))
+  :config )
+  ;; (load-theme 'zenburn t))
 
 (zenburn-with-color-variables
   (custom-theme-set-faces
@@ -366,6 +368,16 @@ about what flexible matching means in this context."
 
   (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode)))
+
+(add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
+(add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+(add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
+(add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil))
+
+(use-package enh-ruby-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.rb\\'" . enh-ruby-mode)))
 
 ;; config changes made through the customize UI will be stored here
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -479,8 +491,9 @@ export default " name ";"))
 
 ;;My  Macros
 
-(fset 'copy-current-buffer-file-name
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote (":buffer-file-name-" 0 "%d")) arg)))
+(defun copy-current-buffer-file-name ()
+  (interactive)
+  (shell-command (concat "echo " (buffer-file-name) " | pbcopy")))
 
 (global-set-key (kbd "C-x M-f") 'copy-current-buffer-file-name)
 
@@ -495,6 +508,17 @@ export default " name ";"))
 ;; set upcase-region function on
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+
+(defun sort-words (reverse beg end)
+  "Sort words in region alphabetically, in REVERSE if negative.
+    Prefixed with negative \\[universal-argument], sorts in reverse.
+
+    The variable `sort-fold-case' determines whether alphabetic case
+    affects the sort order.
+
+    See `sort-regexp-fields'."
+  (interactive "*P\nr")
+  (sort-regexp-fields reverse "\\w+" "\\&" beg end))
 
 ;; toggle maximize buffer
 (defun toggle-maximize-buffer () "Maximize buffer"
@@ -515,32 +539,92 @@ export default " name ";"))
 ;; dired defaults
 (setq dired-listing-switches "-aBhl")
 
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
+;; (defun setup-tide-mode ()
+;;   (interactive)
+;;   (tide-setup)
+;;   (flycheck-mode +1)
+;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+;;   (eldoc-mode +1)
+;;   (tide-hl-identifier-mode +1)
+;;   ;; company is an optional dependency. You have to
+;;   ;; install it separately via package-install
+;;   ;; `M-x package-install [ret] company`
+;;   (company-mode +1))
 
 ;; aligns annotation to the right hand side
 (setq company-tooltip-align-annotations t)
 
 ;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
+;; (add-hook 'before-save-hook 'tide-format-before-save)
 
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
+;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 
 (require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-(add-hook 'web-mode-hook
-          (lambda ()
-            (when (string-equal "tsx" (file-name-extension buffer-file-name))
-              (setup-tide-mode))))
+;; (add-hook 'web-mode-hook
+;;           (lambda ()
+;;             (when (string-equal "tsx" (file-name-extension buffer-file-name))
+;;               (setup-tide-mode))))
 ;; ;; enable typescript-tslint checker
 ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
+(put 'set-goal-column 'disabled nil)
+
+
+;; <Color theme initialization code>
+
+(defun disable-all-themes ()
+  "disable all active themes."
+  (dolist (i custom-enabled-themes)
+    (disable-theme i)))
+
+(defadvice load-theme (before disable-themes-first activate)
+  (disable-all-themes))
+
+(defun synchronize-theme ()
+  (setq hour
+        (string-to-number
+         (substring (current-time-string) 11 13)))
+  (if (member hour (number-sequence 6 17))
+      (load-theme 'adwaita t)
+    (load-theme 'zenburn t) ) )
+
+  (run-with-timer 0 3600 'synchronize-theme)
+
+;; LSP
+(use-package lsp-mode
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-c l")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         (rust-mode . lsp)
+         (enh-ruby-mode . lsp)
+         (web-mode . lsp))
+
+  :commands lsp)
+
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+;; if you are ivy user
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+;; which-key integration
+(use-package which-key
+    :config
+    (which-key-mode))
+
+
+(defun copy-from-osx ()
+  (shell-command-to-string "pbpaste"))
+
+(defun paste-to-osx (text &optional push)
+  (let ((process-connection-type nil))
+    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+      (process-send-string proc text)
+      (process-send-eof proc))))
+
+(setq interprogram-cut-function 'paste-to-osx)
+(setq interprogram-paste-function 'copy-from-osx)
+
+(global-set-key (kbd "C-c y") '(lambda ()
+                                 (interactive)
+                                 (popup-menu 'yank-menu)))
