@@ -625,6 +625,10 @@ export default " name ";"))
 (setq interprogram-cut-function 'paste-to-osx)
 (setq interprogram-paste-function 'copy-from-osx)
 
+;; menu with previous yankes
 (global-set-key (kbd "C-c y") '(lambda ()
                                  (interactive)
                                  (popup-menu 'yank-menu)))
+
+;; Pressing C-SPC after the first invocation of C-u C-SPC to jump to previous locations stored in the mark ring.
+(setq set-mark-command-repeat-pop t)
