@@ -587,7 +587,7 @@ export default " name ";"))
          (substring (current-time-string) 11 13)))
   (if (member hour (number-sequence 6 17))
       (load-theme 'adwaita t)
-    (load-theme 'zenburn t) ) )
+    (load-theme 'misterioso t) ) )
 
   (run-with-timer 0 3600 'synchronize-theme)
 
@@ -599,6 +599,7 @@ export default " name ";"))
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (rust-mode . lsp)
          (enh-ruby-mode . lsp)
+         (typescript-mode . lsp)
          (web-mode . lsp))
 
   :commands lsp)
