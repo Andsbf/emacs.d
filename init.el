@@ -87,6 +87,17 @@
 ;; Show white space
 (setq-default show-trailing-whitespace t)
 
+;;
+(defun my-hide-trailing-whitespace-maybe ()
+  "Disable `show-trailing-whitespace' in selected modes."
+  (when (derived-mode-p 'shell-mode)
+                        ;; 'some-other-mode insert other modes here
+                        ;; '...)
+    (setq show-trailing-whitespace nil)))
+
+(add-hook 'after-change-major-mode-hook
+          'my-hide-trailing-whitespace-maybe)
+
 ;; Remove Whitespace trailing
  (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
@@ -232,6 +243,7 @@ about what flexible matching means in this context."
 ;; enable narrow region
 (put 'narrow-to-region 'disabled nil)
 
+;; String manipulation library
 (use-package s)
 
 (use-package paren
@@ -300,18 +312,11 @@ about what flexible matching means in this context."
   (require 'dired-x))
 
 ;;; third-party packages
-(use-package zenburn-theme
-  :ensure t
-  :config )
-  ;; (load-theme 'zenburn t))
 
-(zenburn-with-color-variables
-  (custom-theme-set-faces
-   'zenburn
-;;;;; hl-line-mode
-   `(hl-line-face ((t (:background ,zenburn-bg+2 ))))
-   `(hl-line ((t (:background ,zenburn-bg+2 ))))
-   ))
+;; org-stuff
+(use-package org-journal
+  :ensure t)
+(setq org-hide-emphasis-markers t)
 
 ;; temporarily highlight changes from yanking, etc;;
 (use-package volatile-highlights
@@ -344,6 +349,34 @@ about what flexible matching means in this context."
       '((t . ivy--regex-ignore-order)))
   (setq enable-recursive-minibuffers t)
   (global-set-key (kbd "C-c C-r") 'ivy-resume))
+
+(use-package counsel
+  :ensure t )
+
+(use-package swiper
+  :ensure t )
+(ivy-mode)
+(counsel-mode)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+;; enable this if you want `swiper' to use it
+;; (setq search-default-mode #'char-fold-to-regexp)
+(global-set-key "\C-s" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 
 (use-package expand-region
   :ensure t
@@ -586,7 +619,7 @@ export default " name ";"))
         (string-to-number
          (substring (current-time-string) 11 13)))
   (if (member hour (number-sequence 6 17))
-      (load-theme 'adwaita t)
+      (load-theme 'tsdh-light t)
     (load-theme 'misterioso t) ) )
 
   (run-with-timer 0 3600 'synchronize-theme)
@@ -626,10 +659,29 @@ export default " name ";"))
 (setq interprogram-cut-function 'paste-to-osx)
 (setq interprogram-paste-function 'copy-from-osx)
 
-;; menu with previous yankes
-(global-set-key (kbd "C-c y") '(lambda ()
-                                 (interactive)
-                                 (popup-menu 'yank-menu)))
-
 ;; Pressing C-SPC after the first invocation of C-u C-SPC to jump to previous locations stored in the mark ring.
 (setq set-mark-command-repeat-pop t)
+
+;; Auto load MacOS Path
+(use-package exec-path-from-shell
+  :ensure t)
+
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
+;; Avy text search
+(use-package avy
+  :ensure t
+  :bind*
+  ("C-;" . avy-goto-char-2))
+
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode t))
+
+(use-package ace-window
+  :ensure t
+  :config
+  (global-set-key (kbd "M-o") 'ace-window)
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
