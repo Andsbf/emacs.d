@@ -4,7 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
-   ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#657b83"])
+   ["#eee8d5" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#839496"])
  '(compilation-message-face 'default)
  '(counsel-projectile-preview-buffers nil)
  '(counsel-switch-buffer-preview-virtual-buffers nil)
@@ -50,24 +50,24 @@
      (read-file-name-internal . ivy-sort-file-function-default)
      (t . ivy-string<)))
  '(lsp-auto-guess-root nil)
+ '(lsp-completion-provider :none)
  '(lsp-eldoc-enable-hover nil)
  '(lsp-eldoc-render-all nil)
  '(lsp-enable-indentation nil)
- '(lsp-signature-auto-activate ''(:on-trigger-char :on-server-request))
+ '(lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
  '(lsp-signature-doc-lines 20)
- '(lsp-ui-doc-border "#93a1a1")
+ '(lsp-ui-doc-border "#586e75")
+ '(lsp-ui-doc-delay 3)
+ '(lsp-ui-doc-include-signature t)
  '(lsp-ui-doc-position 'at-point)
+ '(lsp-ui-doc-show-with-cursor t)
  '(lsp-ui-peek-always-show t)
+ '(lsp-ui-sideline-diagnostic-max-lines 10)
  '(magit-list-refs-sortby "-committerdate")
  '(max-mini-window-height 0.25)
  '(nrepl-message-colors
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(org-adapt-indentation t)
- '(org-capture-templates
-   '(("p" "Personal Notes" entry
-      (file+headline "~/.notes" "Notes")
-      "
-* %? - %U" :prepend t :empty-lines-after 1)) t)
  '(org-journal-date-format "%A, %d/%m/%Y")
  '(org-src-lang-modes
    '(("redis" . redis)
@@ -89,15 +89,17 @@
      ("shell" . sh)
      ("sqlite" . sql)))
  '(package-selected-packages
-   '(lsp-docker dockerfile-mode yafolding flycheck-plantuml plantuml-mode csv-mode string-inflection yasnippet-snippets lsp-mode ace-window diff-hl avy exec-path-from-shell which-key enh-ruby-mode web-mode expand-region counsel ivy projectile magit volatile-highlights org-journal dired uniquify abbrev s auto-package-update auto-compile use-package))
+   '(company lsp-ui typescript-mode yaml-mode rainbow-delimiters minions moody lsp-docker dockerfile-mode yafolding flycheck-plantuml plantuml-mode csv-mode string-inflection yasnippet-snippets lsp-mode ace-window diff-hl avy exec-path-from-shell which-key enh-ruby-mode web-mode expand-region counsel ivy projectile magit volatile-highlights org-journal dired uniquify abbrev auto-package-update auto-compile use-package))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(ruby-deep-indent-paren-style 'space)
+ '(safe-local-variable-values '((lsp-enabled-clients ts-ls)))
  '(scroll-all-mode nil)
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
  '(smie-indent-basic 2)
  '(term-default-bg-color "#fdf6e3")
  '(term-default-fg-color "#657b83")
+ '(typescript-indent-level 2)
  '(uniquify-buffer-name-style 'forward nil (uniquify))
  '(vc-annotate-background nil)
  '(vc-annotate-background-mode nil)
@@ -121,13 +123,15 @@
      (340 . "#2c889009c736")
      (360 . "#268bd2")))
  '(vc-annotate-very-old-color nil)
+ '(web-mode-enable-comment-annotation t)
  '(weechat-color-list
    '(unspecified "#002b36" "#073642" "#a7020a" "#dc322f" "#5b7300" "#859900" "#866300" "#b58900" "#0061a8" "#268bd2" "#a00559" "#d33682" "#007d76" "#2aa198" "#839496" "#657b83"))
  '(xterm-color-names
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])
  '(xterm-color-names-bright
    ["#002b36" "#cb4b16" "#586e75" "#657b83" "#839496" "#6c71c4" "#93a1a1" "#fdf6e3"])
- '(yas-global-mode t))
+ '(yas-global-mode t)
+ '(yas-snippet-dirs '("/Users/ando/.emacs.d/snippets" yasnippet-snippets-dir)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

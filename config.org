@@ -424,6 +424,19 @@ Magit is the greatness
     (setq magit-save-repository-buffers nil))
 #+end_src
 
+** My Functions
+   #+begin_src emacs-lisp
+(defun asbf-copy-filename-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
+   #+end_src
+
 ** Misc. to be looked at
 #+begin_src emacs-lisp
   (use-package projectile
@@ -451,6 +464,7 @@ Magit is the greatness
   (use-package counsel
     :ensure t )
 
+  ;; Gives me C-M-n & C-M-p to preview files while looking at `counsel-projectile-find-file`
   (use-package counsel-projectile
     :config
     (counsel-projectile-mode +1)
@@ -509,6 +523,11 @@ Magit is the greatness
   (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
   (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
   (add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil))
+
+  ;; Stop Web-mode from overiding org-journal-new-entry
+  (add-hook 'web-mode-hook
+          (lambda()
+            (local-unset-key (kbd "C-c C-c"))))
 
   (use-package yasnippet
     :ensure t
@@ -570,6 +589,7 @@ Magit is the greatness
   (add-to-list 'projectile-globally-ignored-files ".#*")
 
   ;; dired defaults
+  (put 'dired-find-alternate-file 'disabled nil)
   (setq dired-listing-switches "-aBhl")
 
   ;; aligns annotation to the right hand side
@@ -623,8 +643,12 @@ Magit is the greatness
            (enh-ruby-mode . lsp)
            (typescript-mode . lsp)
            (web-mode . lsp))
-
     :commands lsp)
+
+  (add-hook 'lsp-after-apply-edits-hook
+            (lambda (operation)
+              (when (eq operation 'rename)
+                (save-buffer))))
 
   ;; optionally
   (use-package lsp-ui :commands lsp-ui-mode)
