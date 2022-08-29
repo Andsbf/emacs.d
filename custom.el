@@ -68,7 +68,9 @@
  '(nrepl-message-colors
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(org-adapt-indentation t)
+ '(org-agenda-files '("~/Documents/journal/"))
  '(org-journal-date-format "%A, %d/%m/%Y")
+ '(org-journal-file-format "%Y%m%d.org")
  '(org-src-lang-modes
    '(("redis" . redis)
      ("php" . php)
