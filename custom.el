@@ -14,6 +14,7 @@
  '(cua-read-only-cursor-color "#859900")
  '(custom-safe-themes
    '("4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "fee7287586b17efbfda432f05539b58e86e059e78006ce9237b8732fde991b4c" default))
+ '(ediff-window-setup-function 'ediff-setup-windows-plain)
  '(enh-ruby-bounce-deep-indent nil)
  '(enh-ruby-deep-indent-construct nil)
  '(fci-rule-color "#073642")
@@ -69,8 +70,14 @@
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(org-adapt-indentation t)
  '(org-agenda-files '("~/Documents/journal/"))
+ '(org-edit-src-content-indentation 0)
  '(org-journal-date-format "%A, %d/%m/%Y")
  '(org-journal-file-format "%Y%m%d.org")
+ '(org-journal-hide-entries-p nil)
+ '(org-journal-time-format "%R
+")
+ '(org-journal-time-prefix "
+** ")
  '(org-src-lang-modes
    '(("redis" . redis)
      ("php" . php)
@@ -90,8 +97,10 @@
      ("screen" . shell-script)
      ("shell" . sh)
      ("sqlite" . sql)))
+ '(org-src-preserve-indentation nil)
+ '(org-startup-indented t)
  '(package-selected-packages
-   '(company lsp-ui typescript-mode yaml-mode rainbow-delimiters minions moody lsp-docker dockerfile-mode yafolding flycheck-plantuml plantuml-mode csv-mode string-inflection yasnippet-snippets lsp-mode ace-window diff-hl avy exec-path-from-shell which-key enh-ruby-mode web-mode expand-region counsel ivy projectile magit volatile-highlights org-journal dired uniquify abbrev auto-package-update auto-compile use-package))
+   '(wgrep company lsp-ui typescript-mode yaml-mode rainbow-delimiters minions moody lsp-docker dockerfile-mode yafolding flycheck-plantuml plantuml-mode csv-mode string-inflection yasnippet-snippets lsp-mode ace-window diff-hl avy exec-path-from-shell which-key enh-ruby-mode web-mode expand-region counsel ivy projectile magit volatile-highlights org-journal dired uniquify abbrev auto-package-update auto-compile use-package))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(ruby-deep-indent-paren-style 'space)

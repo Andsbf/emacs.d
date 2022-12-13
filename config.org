@@ -139,7 +139,19 @@
 
   #+begin_src emacs-lisp
   (use-package org-journal
-    :ensure t)
+  :config
+  (custom-set-variables
+  '(org-adapt-indentation t)
+  '(org-startup-indented t)
+  '(org-src-preserve-indentation nil)
+  '(org-edit-src-content-indentation 0)
+  '(org-agenda-files '("~/Documents/journal/"))
+  '(org-journal-date-format "%A, %d/%m/%Y")
+  '(org-journal-file-format "%Y%m%d.org")
+  '(org-journal-time-format "%R\n")
+  '(org-journal-time-prefix "\n** ")
+   )
+  :ensure t)
 
   (global-set-key (kbd "C-c c") #'org-capture)
   (setq org-capture-templates
@@ -150,8 +162,6 @@
            (file+headline "~/Documents/notes/w_notes" "Notes")
            "\n* %? - %U" :prepend t :empty-lines-after 1)))
 
-  (setq org-src-preserve-indentation nil
-        org-edit-src-content-indentation 0)
   #+end_src
 
 * UI preferences
@@ -436,6 +446,35 @@
        (when filename
          (kill-new filename)
          (message "Copied buffer file name '%s' to the clipboard." filename))))
+
+   (defun asbf-get-repo-name ()
+     "Get magit current repo's name"
+     (nth 0
+          (last
+           (split-string
+            (magit-toplevel) "/"
+            ) 2
+           )
+          )
+     )
+
+   (defun asbf-file-path ()
+     "Get file-path relative to repo"
+     (string-join (nthcdr 5 (split-string buffer-file-name "/")) "/")
+     )
+
+   (defun asbf-file-in-gh ()
+     "Copy a file to its address in master on CA Github"
+     (interactive)
+     (let
+         (
+          (file-gh-address (format "https://github.com/cultureamp/%s/blob/master/%s"(asbf-get-repo-name) (asbf-file-path)))
+          )
+
+       (kill-new file-gh-address)
+       (message "Copied file's github address '%s' to the clipboard." file-gh-address)
+       )
+     )
    #+end_src
 
 ** Misc. to be looked at
@@ -642,6 +681,7 @@
      :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
             (rust-mode . lsp)
             (enh-ruby-mode . lsp)
+            (python-mode . lsp)
             (typescript-mode . lsp)
             (web-mode . lsp))
      :commands lsp)
