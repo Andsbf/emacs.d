@@ -162,6 +162,9 @@
            (file+headline "~/Documents/notes/w_notes" "Notes")
            "\n* %? - %U" :prepend t :empty-lines-after 1)))
 
+  ;; Auto Save org buffers every once in a while, it helps with journal carrie over
+  (add-hook 'auto-save-hook 'org-save-all-org-buffers)
+
   #+end_src
 
 * UI preferences
@@ -232,6 +235,18 @@
    (setq typescript-expr-indent-offset 2)
    (setq css-indent-offset 2)
    #+end_src
+
+** Tree Sitter
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :ensure t
+  :init
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode t)
+  )
+#+end_src
 
 ** Whitespace
 
@@ -419,8 +434,10 @@
 ** Line Numbers
 
    #+begin_src emacs-lisp
-   (global-linum-mode t)
-   (setq linum-format "%d ")
+   (global-display-line-numbers-mode)
+   ;; probable delete the below eventually
+   ;; (global-linum-mode t)
+   ;; (setq linum-format "%d ")
    #+end_src
 
 ** Magit
@@ -437,6 +454,26 @@
 
 ** My Functions
    #+begin_src emacs-lisp
+(defun asbf-wait-for-buffer (buffer-name)
+  "Wait for the specified buffer to open."
+  (while (not (get-buffer buffer-name))
+    (sit-for 0.1)))
+
+   (defun asbf-ruby-namespaced ()
+     (interactive)
+     (let ((buffer (get-buffer "*eldoc*")))
+       (when buffer
+         (kill-buffer buffer)
+         (message "Buffer '%s' killed." "*eldoc*")))
+     (eldoc--invoke-strategy t)
+     (asbf-wait-for-buffer "*eldoc*")
+     (with-current-buffer "*eldoc*"
+       (goto-line 1)
+       (kill-new (buffer-substring (line-beginning-position) (line-end-position)))
+       (kill-buffer "*eldoc*")
+     )
+   )
+
    (defun asbf-copy-filename-to-clipboard ()
      "Copy the current buffer file name to the clipboard."
      (interactive)
@@ -468,13 +505,15 @@
      (interactive)
      (let
          (
-          (file-gh-address (format "https://github.com/cultureamp/%s/blob/master/%s"(asbf-get-repo-name) (asbf-file-path)))
+          (file-gh-address (format "https://github.com/cultureamp/%s/blob/master/%s#L%s"(asbf-get-repo-name) (asbf-file-path) (line-number-at-pos)))
           )
 
        (kill-new file-gh-address)
        (message "Copied file's github address '%s' to the clipboard." file-gh-address)
        )
      )
+
+   (defalias 'open_in_browser 'browse-url-default-macosx-browser)
    #+end_src
 
 ** Misc. to be looked at
