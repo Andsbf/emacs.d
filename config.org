@@ -88,6 +88,41 @@
          )
    #+end_src
 
+* Adjust macOS Keyboard to be closer to emacs keybinds
+Add the following file to `~/Library/KeyBindings/DefaultKeyBinding.dict`
+
+"^@" = "noop:"; # Disables the "caps lock" default behaviour
+
+#+begin_src dict
+{
+  "^@" = "noop:";
+  "^ " = setMark:;
+  "^/" = undo:;
+  "^l" = selectParagraph:;
+  "^u" = deleteToBeginningOfParagraph:;
+  "^w" = deleteToMark:;
+  "^x" = {
+    "^x" = swapWithMark:;
+    "^m" = selectToMark:;
+  };
+  "^V" = pageDownAndModifySelection:;
+  "~@" = selectWord:;
+  "~b" = moveWordBackward:;
+  "~c" = (capitalizeWord:, moveForward:, moveForward:);
+  "~d" = deleteWordForward:;
+  "~f" = moveWordForward:;
+  "~l" = (lowercaseWord:, moveForward:, moveForward:);
+  "~r" = centerSelectionInVisibleArea:;
+  "~u" = (uppercaseWord:, moveForward:, moveForward:);
+  "~v" = pageUp:;
+  "~w" = (deleteToMark:, setMark:, yank:, swapWithMark:);
+  "~B" = moveWordForwardAndModifySelection:;
+  "~F" = moveWordForwardAndModifySelection:;
+  "~V" = pageUpAndModifySelection:;
+}
+#+end_src
+
+
 * Large files warning
 
   #+begin_src emacs-lisp
