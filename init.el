@@ -1,21 +1,35 @@
-;; Configure package.el to include MELPA.
-(require 'package)
-(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/") t)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-(package-initialize)
+;; Tell straight.el to use built-in packages
+(setq straight-built-in-pseudo-packages '(emacs python project))
 
-;; Ensure that use-package is installed.
-;;
-;; If use-package isn't already installed, it's extremely likely that this is a
-;; fresh installation! So we'll want to update the package repository and
-;; install use-package before loading the literate configuration.
-(when (not (package-installed-p 'use-package))
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; Configure straight.el to use use-package
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
+;; Update recipe repositories to get latest package definitions
+(straight-pull-recipe-repositories)
+
+;; Load org-mode via straight.el BEFORE org-babel-load-file
+;; This prevents built-in org from loading and causing version mismatch
+(straight-use-package 'org)
+
+;; Load main configuration
 (org-babel-load-file "~/.emacs.d/config.org")
+
+;; Custom settings
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

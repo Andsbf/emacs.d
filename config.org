@@ -5,17 +5,21 @@
 * Package Management
 
 #+begin_src emacs-lisp
+;; Straight.el is configured in init.el
+;; All packages installed via straight.el (git-based)
+
+;; Use-package verbose mode for debugging
 (setq use-package-verbose t)
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
+
+;; Auto-compile packages
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
+
+;; Always load newest version
 (setq load-prefer-newer t)
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+;; Reduce byte-compile warnings
 (setq byte-compile-warnings '(cl-functions))
-(use-package auto-package-update
-  :ensure t
-  :config (setq auto-package-update-delete-old-versions t))
 #+end_src
 
 * Sensible Defaults
@@ -71,7 +75,6 @@
 #+begin_src emacs-lisp
 (setq org-element-use-cache nil)
 (use-package org-journal
-  :ensure t
   :config
   (custom-set-variables
    '(org-adapt-indentation t)
@@ -290,7 +293,6 @@
 
 #+begin_src emacs-lisp
 (use-package volatile-highlights
-  :ensure t
   :config
   (volatile-highlights-mode +1))
 #+end_src
@@ -337,7 +339,7 @@
 
 #+begin_src emacs-lisp
 (use-package treesit-fold
-  :ensure t
+  :straight (:host github :repo "emacs-tree-sitter/treesit-fold")
   :config
   ;; Enable folding in tree-sitter modes
   (add-hook 'ruby-ts-mode-hook #'treesit-fold-mode)
@@ -356,14 +358,17 @@
 ** Fold-this
 
 #+begin_src emacs-lisp
-(use-package fold-this :ensure t)
+(use-package fold-this)
 #+end_src
 
 ** Magit and Forge
 
 #+begin_src emacs-lisp
+;; Magit dependency
+(use-package cond-let
+  :straight (:host github :repo "tarsius/cond-let"))
+
 (use-package magit
-  :ensure t
   :bind (("C-x g" . magit-status))
   :config
   (setq magit-save-repository-buffers nil)
@@ -537,7 +542,6 @@
 #+begin_src emacs-lisp
 ;; Projectile
 (use-package projectile
-  :ensure t
   :init
   (setq projectile-completion-system 'default)
   :config
@@ -554,7 +558,6 @@
 #+begin_src emacs-lisp
 ;; Vertico - vertical completion UI
 (use-package vertico
-  :ensure t
   :init
   (vertico-mode)
   :config
@@ -563,7 +566,6 @@
 
 ;; Orderless - flexible matching
 (use-package orderless
-  :ensure t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
@@ -571,7 +573,6 @@
 
 ;; Marginalia - rich annotations
 (use-package marginalia
-  :ensure t
   :init
   (marginalia-mode)
   :bind (:map minibuffer-local-map
@@ -579,7 +580,6 @@
 
 ;; Consult - enhanced commands
 (use-package consult
-  :ensure t
   :bind (("C-s" . consult-line)
          ("C-c C-r" . consult-recent-file)
          ("C-c j" . consult-git-grep)
@@ -593,7 +593,6 @@
 
 ;; Embark - contextual actions
 (use-package embark
-  :ensure t
   :bind (("C-." . embark-act)
          ("C-h B" . embark-bindings))
   :config
@@ -601,7 +600,6 @@
 
 ;; Embark-Consult integration
 (use-package embark-consult
-  :ensure t
   :after (embark consult)
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
@@ -620,7 +618,6 @@
 
 ;; Keep web-mode for HTML/templates
 (use-package web-mode
-  :ensure t
   :mode ("\\.html\\'" "\\.erb\\'" "\\.vue\\'")
   :config
   (setq web-mode-markup-indent-offset 2)
@@ -639,7 +636,7 @@
 #+begin_src emacs-lisp
 ;; Kotlin with tree-sitter
 (use-package kotlin-ts-mode
-  :ensure t
+  :straight (:host github :repo "emacsmirror/kotlin-ts-mode")
   :mode "\\.kt\\'"
   :config
   (setq kotlin-ts-mode-indent-offset 4))
@@ -663,14 +660,15 @@
 
 #+begin_src emacs-lisp
 (use-package yasnippet
-  :ensure t
   :bind (:map yas-minor-mode-map
               ("TAB" . nil)
               ("<tab>" . nil))
   :config (yas-global-mode))
 
+(use-package yasnippet-snippets
+  :after yasnippet)
+
 (use-package expand-region
-  :ensure t
   :bind (("C-c e" . er/expand-region)))
 #+end_src
 
@@ -679,7 +677,6 @@
 #+begin_src emacs-lisp
 ;; Corfu - modern completion UI
 (use-package corfu
-  :ensure t
   :custom
   (corfu-cycle t)                    ; Enable cycling for completion
   (corfu-auto t)                     ; Enable auto completion
@@ -698,7 +695,6 @@
 
 ;; Kind-icon - show icons in completion popup
 (use-package kind-icon
-  :ensure t
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default)
@@ -707,7 +703,6 @@
 
 ;; Cape - Completion At Point Extensions
 (use-package cape
-  :ensure t
   :init
   ;; Add completion backends
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
@@ -730,7 +725,6 @@
 #+begin_src emacs-lisp
 (use-package eglot
   :defer t
-  :ensure t
   :commands (eglot eglot-ensure)
   :hook (
          (ruby-ts-mode . eglot-ensure)
@@ -764,7 +758,6 @@
 
 ;; Flymake-collection - additional checkers for flymake
 (use-package flymake-collection
-  :ensure t
   :after flymake
   :config
   (flymake-collection-hook-setup))
@@ -800,8 +793,9 @@
 ;; Org-mode startup folding
 (setq org-startup-folded 'show3levels)
 
-;; Yasnippet directories
-(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+;; Yasnippet directories - add custom snippets directory
+(with-eval-after-load 'yasnippet
+  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets" t))
 
 ;; Sort words in region
 (defun sort-words (reverse beg end)
@@ -900,25 +894,21 @@ See `sort-regexp-fields'."
 
 ;; Load MacOS PATH
 (use-package exec-path-from-shell
-  :ensure t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
 ;; Avy - jump to visible text
 (use-package avy
-  :ensure t
   :bind* ("C-;" . avy-goto-char-2))
 
 ;; Diff-hl - show git diff in fringe
 (use-package diff-hl
-  :ensure t
   :config
   (global-diff-hl-mode t))
 
 ;; Ace-window - quickly switch windows
 (use-package ace-window
-  :ensure t
   :bind (("M-o" . ace-window))
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -950,7 +940,7 @@ See `sort-regexp-fields'."
 
 #+begin_src emacs-lisp
 (use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :straight (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c C-'" . claude-code-ide-menu)
   :config
   (claude-code-ide-emacs-tools-setup)
@@ -962,9 +952,7 @@ See `sort-regexp-fields'."
 
 #+begin_src emacs-lisp
 (use-package copilot
-  :vc (:url "https://github.com/copilot-emacs/copilot.el"
-            :rev :newest
-            :branch "main")
+  :straight (:host github :repo "copilot-emacs/copilot.el" :branch "main")
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
               ("<tab>" . copilot-accept-completion)
