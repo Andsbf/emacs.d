@@ -155,15 +155,35 @@
       css-indent-offset 2)
 #+end_src
 
-** Tree-sitter
+** Tree-sitter (Built-in)
 
 #+begin_src emacs-lisp
-(use-package tree-sitter
-  :ensure t
-  :init
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-  :config
-  (global-tree-sitter-mode t))
+;; Built-in tree-sitter configuration (Emacs 29+)
+(setq treesit-language-source-alist
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (css "https://github.com/tree-sitter/tree-sitter-css")
+        (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
+        (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+;; Auto-install grammars if missing
+(defun my-install-treesit-grammars ()
+  "Install tree-sitter grammars if they don't exist."
+  (interactive)
+  (dolist (lang treesit-language-source-alist)
+    (unless (treesit-language-available-p (car lang))
+      (message "Installing tree-sitter grammar for %s..." (car lang))
+      (treesit-install-language-grammar (car lang)))))
+
+;; Install grammars on first load if needed
+(when (not (treesit-language-available-p 'typescript))
+  (my-install-treesit-grammars))
 #+end_src
 
 ** Whitespace
@@ -173,7 +193,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (defun my-hide-trailing-whitespace-maybe ()
   "Disable `show-trailing-whitespace' in selected modes."
-  (when (derived-mode-p 'shell-mode 'term-mode 'vterm-mode)
+  (when (derived-mode-p 'shell-mode 'term-mode 'vterm-mode 'eshell-mode 'comint-mode)
     (setq show-trailing-whitespace nil)))
 (add-hook 'after-change-major-mode-hook 'my-hide-trailing-whitespace-maybe)
 #+end_src
@@ -313,11 +333,24 @@
 (global-display-line-numbers-mode)
 #+end_src
 
-** Yafolding
+** Code Folding with treesit-fold
 
 #+begin_src emacs-lisp
-(use-package yafolding)
-(add-hook 'prog-mode-hook #'yafolding-mode)
+(use-package treesit-fold
+  :ensure t
+  :config
+  ;; Enable folding in tree-sitter modes
+  (add-hook 'ruby-ts-mode-hook #'treesit-fold-mode)
+  (add-hook 'typescript-ts-mode-hook #'treesit-fold-mode)
+  (add-hook 'tsx-ts-mode-hook #'treesit-fold-mode)
+  (add-hook 'js-ts-mode-hook #'treesit-fold-mode)
+  (add-hook 'kotlin-ts-mode-hook #'treesit-fold-mode)
+  ;; Optional: Add keybindings
+  (global-set-key (kbd "C-c f t") 'treesit-fold-toggle)
+  (global-set-key (kbd "C-c f c") 'treesit-fold-close)
+  (global-set-key (kbd "C-c f o") 'treesit-fold-open)
+  (global-set-key (kbd "C-c f C") 'treesit-fold-close-all)
+  (global-set-key (kbd "C-c f O") 'treesit-fold-open-all))
 #+end_src
 
 ** Fold-this
@@ -333,7 +366,8 @@
   :ensure t
   :bind (("C-x g" . magit-status))
   :config
-  (setq magit-save-repository-buffers nil))
+  (setq magit-save-repository-buffers nil)
+  (setq magit-list-refs-sortby "-committerdate"))
 (with-eval-after-load 'magit
   (require 'forge))
 (setq forge-pull-requests-limit 50)
@@ -498,106 +532,278 @@
     (insert (string-trim date))))
 #+end_src
 
-* Miscellaneous
+* Project Management
 
 #+begin_src emacs-lisp
-;; Projectile, Ivy, Counsel, Swiper, etc.
+;; Projectile
 (use-package projectile
   :ensure t
   :init
-  (setq projectile-completion-system 'ivy)
+  (setq projectile-completion-system 'default)
   :config
   (projectile-mode +1)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (global-set-key (kbd "C-x f") #'projectile-find-file-dwim-other-window)
-  (setq projectile-enable-caching t))
+  (setq projectile-enable-caching t)
+  (setq projectile-indexing-method 'hybrid))
+#+end_src
 
-(use-package ivy
+* Completion Framework (Vertico Ecosystem)
+
+#+begin_src emacs-lisp
+;; Vertico - vertical completion UI
+(use-package vertico
   :ensure t
+  :init
+  (vertico-mode)
   :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-re-builders-alist
-        '((t . ivy--regex-ignore-order)))
-  (setq enable-recursive-minibuffers t)
-  (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (global-set-key (kbd "C-c s") 'ivy-restrict-to-matches))
+  (setq vertico-cycle t)
+  (setq enable-recursive-minibuffers t))
 
-(use-package counsel
-  :ensure t)
-(use-package counsel-projectile
-  :config (counsel-projectile-mode +1)
-  :ensure t)
-(use-package swiper
-  :ensure t)
-(ivy-mode)
-(counsel-mode)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(global-set-key "\C-s" 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "<f1> f") 'counsel-describe-function)
-(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-(global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
-(global-set-key (kbd "<f1> l") 'counsel-find-library)
-(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-(global-set-key (kbd "C-c g") 'counsel-git)
-(global-set-key (kbd "C-c j") 'counsel-git-grep)
-(global-set-key (kbd "C-c k") 'counsel-ag)
-(global-set-key (kbd "C-x l") 'counsel-locate)
-(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-
-(use-package expand-region
+;; Orderless - flexible matching
+(use-package orderless
   :ensure t
-  :bind (("C-c e" . er/expand-region)))
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
 
+;; Marginalia - rich annotations
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode)
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle)))
+
+;; Consult - enhanced commands
+(use-package consult
+  :ensure t
+  :bind (("C-s" . consult-line)
+         ("C-c C-r" . consult-recent-file)
+         ("C-c j" . consult-git-grep)
+         ("C-c k" . consult-ripgrep)
+         ("C-x l" . consult-locate)
+         ("C-c g" . consult-grep)
+         :map minibuffer-local-map
+         ("C-r" . consult-history))
+  :config
+  (setq consult-narrow-key "<"))
+
+;; Embark - contextual actions
+(use-package embark
+  :ensure t
+  :bind (("C-." . embark-act)
+         ("C-h B" . embark-bindings))
+  :config
+  (setq prefix-help-command #'embark-prefix-help-command))
+
+;; Embark-Consult integration
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+* Programming Languages
+
+** TypeScript, JavaScript, and Web Development
+
+#+begin_src emacs-lisp
+;; TypeScript and JavaScript with built-in tree-sitter modes
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+
+;; Keep web-mode for HTML/templates
 (use-package web-mode
   :ensure t
+  :mode ("\\.html\\'" "\\.erb\\'" "\\.vue\\'")
   :config
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
-  (setq web-mode-indent-style 2)
-  (setq web-mode-tag-auto-close-style t)
   (setq web-mode-enable-auto-closing t)
-  (setq web-mode-enable-auto-pairing t)
-  (setq web-mode-enable-auto-opening t)
-  (setq web-mode-enable-auto-quoting nil)
-  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
-  (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode)))
-(add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
-(add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
-(add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
-(add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil))
-(add-hook 'web-mode-hook (lambda() (local-unset-key (kbd "C-c C-c"))))
+  (setq web-mode-enable-auto-pairing t))
 
+;; TypeScript/JavaScript indentation
+(setq typescript-ts-mode-indent-offset 2)
+(setq js-indent-level 2)
+#+end_src
+
+** Kotlin
+
+#+begin_src emacs-lisp
+;; Kotlin with tree-sitter
+(use-package kotlin-ts-mode
+  :ensure t
+  :mode "\\.kt\\'"
+  :config
+  (setq kotlin-ts-mode-indent-offset 4))
+#+end_src
+
+** Ruby
+
+#+begin_src emacs-lisp
+;; Ruby with built-in tree-sitter mode
+(add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.rbs\\'" . ruby-ts-mode))
+(add-to-list 'auto-mode-alist '("Gemfile\\'" . ruby-ts-mode))
+(add-to-list 'auto-mode-alist '("Rakefile\\'" . ruby-ts-mode))
+
+;; Ruby indentation settings
+(setq ruby-indent-level 2)
+(setq ruby-indent-tabs-mode nil)
+#+end_src
+
+* Code Editing Tools
+
+#+begin_src emacs-lisp
 (use-package yasnippet
   :ensure t
   :bind (:map yas-minor-mode-map
               ("TAB" . nil)
               ("<tab>" . nil))
   :config (yas-global-mode))
-(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 
-(use-package enh-ruby-mode
+(use-package expand-region
   :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.rb\\'" . enh-ruby-mode))
-  (add-to-list 'auto-mode-alist '("\\.rbs\\'" . enh-ruby-mode))
-  (setq enh-ruby-deep-indent-paren nil)
-  (setq enh-ruby-deep-indent-construct nil))
+  :bind (("C-c e" . er/expand-region)))
+#+end_src
 
+* Completion UI (Corfu & Cape)
+
+#+begin_src emacs-lisp
+;; Corfu - modern completion UI
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-cycle t)                    ; Enable cycling for completion
+  (corfu-auto t)                     ; Enable auto completion
+  (corfu-auto-delay 0.1)             ; Delay before showing completions
+  (corfu-auto-prefix 2)              ; Minimum prefix length for auto completion
+  (corfu-popupinfo-delay 0.5)        ; Show documentation after delay
+  :bind
+  (:map corfu-map
+        ("TAB" . corfu-next)
+        ([tab] . corfu-next)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous))
+  :init
+  (global-corfu-mode)
+  (corfu-popupinfo-mode))
+
+;; Kind-icon - show icons in completion popup
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default)
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+
+;; Cape - Completion At Point Extensions
+(use-package cape
+  :ensure t
+  :init
+  ;; Add completion backends
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  :config
+  ;; Bind prefix keys for manual completion
+  (define-key global-map (kbd "C-c p p") #'completion-at-point)
+  (define-key global-map (kbd "C-c p d") #'cape-dabbrev)
+  (define-key global-map (kbd "C-c p f") #'cape-file)
+  (define-key global-map (kbd "C-c p k") #'cape-keyword))
+
+;; Integrate yasnippet with Cape
+(with-eval-after-load 'cape
+  (add-to-list 'completion-at-point-functions #'cape-yasnippet))
+#+end_src
+
+* Language Server Protocol (LSP)
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :defer t
+  :ensure t
+  :commands (eglot eglot-ensure)
+  :hook (
+         (ruby-ts-mode . eglot-ensure)
+         (typescript-ts-mode . eglot-ensure)
+         (tsx-ts-mode . eglot-ensure)
+         (js-ts-mode . eglot-ensure)
+         (kotlin-ts-mode . eglot-ensure)
+         (rust-mode . eglot-ensure))
+  :config
+  (add-to-list 'eglot-server-programs '(ruby-ts-mode "solargraph" "socket" "--port" :autoport))
+  (add-to-list 'eglot-server-programs '((typescript-ts-mode tsx-ts-mode js-ts-mode) "typescript-language-server" "--stdio"))
+  ;; Kotlin LSP (official JetBrains)
+  (add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio")))
+#+end_src
+
+* Syntax Checking (Flymake)
+
+#+begin_src emacs-lisp
+;; Flymake - built-in syntax checking (integrates with eglot)
+(use-package flymake
+  :ensure nil  ;; Built-in
+  :hook (prog-mode . flymake-mode)
+  :bind (:map flymake-mode-map
+              ("M-n" . flymake-goto-next-error)
+              ("M-p" . flymake-goto-prev-error)
+              ("C-c ! l" . flymake-show-buffer-diagnostics)
+              ("C-c ! L" . flymake-show-project-diagnostics))
+  :config
+  (setq flymake-no-changes-timeout 0.5)
+  (setq flymake-start-on-save-buffer t))
+
+;; Flymake-collection - additional checkers for flymake
+(use-package flymake-collection
+  :ensure t
+  :after flymake
+  :config
+  (flymake-collection-hook-setup))
+#+end_src
+
+* Miscellaneous Settings
+
+#+begin_src emacs-lisp
+;; Custom file location
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
+
+;; Enable disabled commands
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'erase-buffer 'disabled nil)
+(put 'set-goal-column 'disabled nil)
+
+;; Ediff preferences
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; Eldoc and help settings
+(setq eldoc-idle-delay 3)
+(setq help-at-pt-timer-delay 3)
+
+;; Minibuffer height
+(setq max-mini-window-height 0.25)
+
+;; Eglot connection timeout (nil = no timeout)
+(setq eglot-connect-timeout nil)
+
+;; Org-mode startup folding
+(setq org-startup-folded 'show3levels)
+
+;; Yasnippet directories
+(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+
+;; Sort words in region
 (defun sort-words (reverse beg end)
   "Sort words in region alphabetically, in REVERSE if negative.
 Prefixed with negative \\[universal-argument], sorts in reverse.
@@ -609,25 +815,28 @@ See `sort-regexp-fields'."
   (interactive "*P\nr")
   (sort-regexp-fields reverse "\\w+" "\\&" beg end))
 
-(defun toggle-maximize-buffer () "Maximize buffer"
-       (interactive)
-       (if (= 1 (length (window-list)))
-           (jump-to-register '_)
-         (progn
-           (window-configuration-to-register '_)
-           (delete-other-windows))))
-(global-set-key (kbd "C-c m b") 'toggle-maximize-buffer)
-(put 'erase-buffer 'disabled nil)
+;; Toggle maximize buffer
+;; Projectile ignore patterns
 (add-to-list 'projectile-globally-ignored-files ".#*")
+(add-to-list 'projectile-globally-ignored-directories "tree-sitter")
+(add-to-list 'projectile-globally-ignored-directories "lsp-servers")
+
+;; Dired settings
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-listing-switches "-aBhl")
-(setq company-tooltip-align-annotations t)
-;; (add-hook 'before-save-hook 'tide-format-before-save)
-;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.ts\\'" . web-mode))
-(put 'set-goal-column 'disabled nil)
+
+;; Window management - toggle maximize buffer
+(defun toggle-maximize-buffer ()
+  "Maximize buffer"
+  (interactive)
+  (if (= 1 (length (window-list)))
+      (jump-to-register '_)
+    (progn
+      (window-configuration-to-register '_)
+      (delete-other-windows))))
+(global-set-key (kbd "C-c m b") 'toggle-maximize-buffer)
+
+;; Theme synchronization based on time of day
 (defun disable-all-themes ()
   "disable all active themes."
   (dolist (i custom-enabled-themes)
@@ -665,29 +874,17 @@ See `sort-regexp-fields'."
   (asbf-disable-synchronize-theme)
   (call-interactively #'load-theme)
   (message "Auto theme sync disabled; manual theme chosen."))
-(add-hook 'after-init-hook 'global-company-mode)
-(use-package eglot
-  :defer t
-  :ensure t
-  :commands (eglot eglot-ensure)
-  :hook (
-         (enh-ruby-mode . eglot-ensure)
-         (web-mode . eglot-ensure)
-         (rust-mode . eglot-ensure)
-         (kotlin-mode . eglot-ensure))
-  :config
-  (add-to-list 'eglot-server-programs '(enh-ruby-mode "solargraph" "socket" "--port" :autoport))
-  (add-to-list 'eglot-server-programs '(web-mode "typescript-language-server" "--stdio"))
-  (add-to-list 'eglot-server-programs '(kotlin-mode "/Users/ando/Downloads/kotlin-0.252.17811/kotlin-lsp.sh" "--stdio"))
-  (add-hook 'eglot-managed-mode-hook (lambda ()
-                                       (setq-local company-backends '((:separate company-capf company-yasnippet company-dabbrev-code))))))
-(package-install 'flycheck)
-(global-flycheck-mode)
-(setq-default flycheck-disabled-checkers '(ruby-rubocop))
-(setq flycheck-checker 'ruby-standard)
+#+end_src
+
+* Utility Packages
+
+#+begin_src emacs-lisp
+;; Which-key - show available keybindings
 (use-package which-key
   :config
   (which-key-mode))
+
+;; MacOS clipboard integration
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
 (defun paste-to-osx (text &optional push)
@@ -697,54 +894,71 @@ See `sort-regexp-fields'."
       (process-send-eof proc))))
 (setq interprogram-cut-function 'paste-to-osx)
 (setq interprogram-paste-function 'copy-from-osx)
+
+;; Mark ring navigation
 (setq set-mark-command-repeat-pop t)
+
+;; Load MacOS PATH
 (use-package exec-path-from-shell
-  :ensure t)
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+  :ensure t
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
+;; Avy - jump to visible text
 (use-package avy
   :ensure t
   :bind* ("C-;" . avy-goto-char-2))
+
+;; Diff-hl - show git diff in fringe
 (use-package diff-hl
   :ensure t
   :config
   (global-diff-hl-mode t))
+
+;; Ace-window - quickly switch windows
 (use-package ace-window
   :ensure t
+  :bind (("M-o" . ace-window))
   :config
-  (global-set-key (kbd "M-o") 'ace-window)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (setq aw-scope 'frame))
+
+;; Moody - better mode-line
 (use-package moody
   :config
   (setq x-underline-at-descent-line t)
   (moody-replace-mode-line-buffer-identification)
   (moody-replace-vc-mode))
+
+;; Minions - compact minor modes display
 (use-package minions
   :config
   (setq minions-mode-line-lighter "⚙"
         minions-mode-line-delimiters (cons "" ""))
   (minions-mode 1))
+
+;; Rainbow-delimiters - colorize parentheses
 (use-package rainbow-delimiters
-  :config
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :hook (prog-mode . rainbow-delimiters-mode))
 (message "Happy days")
 #+end_src
 
-** Claude AI
+* AI Tools
+
+** Claude Code IDE
 
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :bind ("C-c C-'" . claude-code-ide-menu)
   :config
   (claude-code-ide-emacs-tools-setup)
   ;; Disable line numbers in vterm buffers
   (add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode -1))))
-
 #+end_src
 
-** Copilot
+** GitHub Copilot
 
 #+begin_src emacs-lisp
 (use-package copilot
@@ -752,13 +966,10 @@ See `sort-regexp-fields'."
             :rev :newest
             :branch "main")
   :hook (prog-mode . copilot-mode)
-  :config
-  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-  )
+  :bind (:map copilot-completion-map
+              ("<tab>" . copilot-accept-completion)
+              ("TAB" . copilot-accept-completion)))
 #+end_src
-
-
 
 * Limbo
 
