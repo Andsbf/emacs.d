@@ -419,23 +419,6 @@
 (electric-pair-mode 1)
 #+end_src
 
-** Perspective
-
-#+begin_src emacs-lisp
-(use-package perspective
-  :bind (
-         ("C-x b" . persp-switch-to-buffer*)
-         ("C-x k" . persp-kill-buffer*)
-         ("C-x C-b" . persp-list-buffers))
-  :custom
-  (persp-mode-prefix-key (kbd "C-c M-p"))
-  :init
-  (persp-mode))
-(defun asbf-set-frame-name-to-perspective-name ()
-  "Set frame name to current perspective."
-  (set-frame-name  (persp-current-name)))
-(add-hook 'persp-switch-hook #'asbf-set-frame-name-to-perspective-name)
-#+end_src
 
 * My Functions
 
@@ -616,6 +599,7 @@
 ;; Consult - enhanced commands
 (use-package consult
   :bind (("C-s" . consult-line)
+         ("C-x b" . consult-buffer)
          ("C-c C-r" . consult-recent-file)
          ("C-c j" . consult-git-grep)
          ("C-c k" . consult-ripgrep)
