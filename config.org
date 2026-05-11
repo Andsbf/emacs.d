@@ -423,70 +423,70 @@
 * My Functions
 
 #+begin_src emacs-lisp
-(defun asbf-run-macro-until-line (line-number)
+(defun ando-run-macro-until-line (line-number)
   "Run the last keyboard macro until LINE-NUMBER is reached."
   (interactive "nRun macro until line: ")
   (while (< (line-number-at-pos) line-number)
     (call-last-kbd-macro)))
 
-(defun asbf-yaml-indentation-level (s)
+(defun ando-yaml-indentation-level (s)
   (if (string-match "^ " s)
-      (+ 1 (asbf-yaml-indentation-level (substring s 1)))
+      (+ 1 (ando-yaml-indentation-level (substring s 1)))
     0))
 
-(defun asbf-yaml-current-line ()
+(defun ando-yaml-current-line ()
   (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
 
-(defun asbf-yaml-clean-string (s)
+(defun ando-yaml-clean-string (s)
   (let* ((s (replace-regexp-in-string "^[[:blank:]-:]*" "" s))
          (s (replace-regexp-in-string ":$" "" s)))
     s))
 
-(defun asbf-yaml-not-blank-p (s)
+(defun ando-yaml-not-blank-p (s)
   (string-match "[^[:blank:]]" s))
 
-(defun asbf-yaml-path-to-point ()
+(defun ando-yaml-path-to-point ()
   (save-excursion
-    (let* ((line (asbf-yaml-current-line))
-           (level (asbf-yaml-indentation-level line))
+    (let* ((line (ando-yaml-current-line))
+           (level (ando-yaml-indentation-level line))
            result)
       (while (> (point) (point-min))
         (beginning-of-line 0)
-        (setq line (asbf-yaml-current-line))
-        (let ((new-level (asbf-yaml-indentation-level line)))
-          (when (and (asbf-yaml-not-blank-p line)
+        (setq line (ando-yaml-current-line))
+        (let ((new-level (ando-yaml-indentation-level line)))
+          (when (and (ando-yaml-not-blank-p line)
                      (< new-level level))
             (setq level new-level)
-            (setq result (push (asbf-yaml-clean-string line) result)))))
+            (setq result (push (ando-yaml-clean-string line) result)))))
       (mapconcat 'identity result " => "))))
 
-(defun asbf-yaml-show-path-to-point ()
+(defun ando-yaml-show-path-to-point ()
   (interactive)
-  (message (asbf-yaml-path-to-point)))
+  (message (ando-yaml-path-to-point)))
 
 (eval-after-load 'yaml-mode
   '(progn
-     (define-key yaml-mode-map (kbd "C-x p") 'asbf-yaml-show-path-to-point)))
+     (define-key yaml-mode-map (kbd "C-x p") 'ando-yaml-show-path-to-point)))
 
-(defun asbf-wait-for-buffer (buffer-name)
+(defun ando-wait-for-buffer (buffer-name)
   "Wait for the specified buffer to open."
   (while (not (get-buffer buffer-name))
     (sit-for 0.1)))
 
-(defun asbf-ruby-namespaced ()
+(defun ando-ruby-namespaced ()
   (interactive)
   (let ((buffer (get-buffer "*eldoc*")))
     (when buffer
       (kill-buffer buffer)
       (message "Buffer '%s' killed." "*eldoc*")))
   (eldoc--invoke-strategy t)
-  (asbf-wait-for-buffer "*eldoc*")
+  (ando-wait-for-buffer "*eldoc*")
   (with-current-buffer "*eldoc*"
     (goto-line 1)
     (kill-new (buffer-substring (line-beginning-position) (line-end-position)))
     (kill-buffer "*eldoc*")))
 
-(defun asbf-copy-filename-to-clipboard ()
+(defun ando-copy-filename-to-clipboard ()
   "Copy the current buffer file name to the clipboard."
   (interactive)
   (let ((filename (if (equal major-mode 'dired-mode)
@@ -496,49 +496,49 @@
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 
-(defun asbf-get-repo-name ()
+(defun ando-get-repo-name ()
   "Get magit current repo's name"
   (nth 0
        (last
         (split-string
          (magit-toplevel) "/") 2)))
 
-(defun asbf-file-path ()
+(defun ando-file-path ()
   "Get file-path relative to repo"
   (string-join (nthcdr 5 (split-string buffer-file-name "/")) "/"))
 
-(defun asbf-file-in-gh ()
+(defun ando-file-in-gh ()
   "Copy a file to its address in master on CA Github"
   (interactive)
   (let ((file-gh-address (format "https://github.com/cultureamp/%s/blob/master/%s#L%s"
-                                 (asbf-get-repo-name)
-                                 (asbf-file-path)
+                                 (ando-get-repo-name)
+                                 (ando-file-path)
                                  (line-number-at-pos))))
     (kill-new file-gh-address)
     (message "Copied file's github address '%s' to the clipboard." file-gh-address)))
 
-(defun asbf-ticket-url ()
+(defun ando-ticket-url ()
   "Open the jira ticket related to the current branch"
   (interactive)
   (let* ((jira-prefix "https://cultureamp.atlassian.net/browse/")
          (branch-ticket (nth 0 (split-string (magit-get-current-branch) "/"))))
     (format "%s%s" jira-prefix branch-ticket)))
 
-(defun asbf-insert-ticket-url ()
+(defun ando-insert-ticket-url ()
   "insert jira ticket related to the current branch"
   (interactive)
-  (insert (asbf-ticket-url)))
+  (insert (ando-ticket-url)))
 
-(defun asbf-open-ticket ()
+(defun ando-open-ticket ()
   "Open the jira ticket related to the current branch"
   (interactive)
-  (let ((ticket-url (asbf-ticket-url)))
+  (let ((ticket-url (ando-ticket-url)))
     (open_in_browser ticket-url)
     (message "Opened ticket: %s" ticket-url)))
 
 (defalias 'open_in_browser 'browse-url-default-macosx-browser)
 
-(defun asbf-insert-formatted-date ()
+(defun ando-insert-formatted-date ()
   "Prompt for a date format and insert the resulting formatted date at point."
   (interactive)
   (let* ((formats '(("%Y%m%d" . "YYYYMMDD")
@@ -857,35 +857,35 @@ See `sort-regexp-fields'."
     (disable-theme i)))
 (defadvice load-theme (before disable-themes-first activate)
   (disable-all-themes))
-(defvar asbf-synchronize-theme-enabled t
+(defvar ando-synchronize-theme-enabled t
   "Whether automatic theme synchronization is enabled.")
-(defun asbf-synchronize-theme ()
+(defun ando-synchronize-theme ()
   "Load a theme depending on the current time, if auto sync is enabled."
-  (when asbf-synchronize-theme-enabled
+  (when ando-synchronize-theme-enabled
     (let ((hour (string-to-number (substring (current-time-string) 11 13))))
       (if (member hour (number-sequence 6 17))
           (load-theme 'solarized-light t)
         (load-theme 'solarized-dark t)))))
-(run-with-timer 0 3600 #'asbf-synchronize-theme)
-(defun asbf-disable-synchronize-theme ()
+(run-with-timer 0 3600 #'ando-synchronize-theme)
+(defun ando-disable-synchronize-theme ()
   "Disable automatic theme synchronization."
   (interactive)
-  (setq asbf-synchronize-theme-enabled nil))
-(defun asbf-enable-synchronize-theme ()
+  (setq ando-synchronize-theme-enabled nil))
+(defun ando-enable-synchronize-theme ()
   "Enable automatic theme synchronization and run immediately."
   (interactive)
-  (setq asbf-synchronize-theme-enabled t)
-  (asbf-synchronize-theme))
-(defun asbf-toggle-synchronize-theme ()
+  (setq ando-synchronize-theme-enabled t)
+  (ando-synchronize-theme))
+(defun ando-toggle-synchronize-theme ()
   "Toggle automatic theme synchronization."
   (interactive)
-  (setq asbf-synchronize-theme-enabled (not asbf-synchronize-theme-enabled))
+  (setq ando-synchronize-theme-enabled (not ando-synchronize-theme-enabled))
   (message "Theme auto-sync %s"
-           (if asbf-synchronize-theme-enabled "enabled" "disabled")))
-(defun asbf-choose-theme ()
+           (if ando-synchronize-theme-enabled "enabled" "disabled")))
+(defun ando-choose-theme ()
   "Disable auto theme sync and interactively choose a theme to load."
   (interactive)
-  (asbf-disable-synchronize-theme)
+  (ando-disable-synchronize-theme)
   (call-interactively #'load-theme)
   (message "Auto theme sync disabled; manual theme chosen."))
 #+end_src
