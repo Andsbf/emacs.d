@@ -74,6 +74,7 @@
 
 #+begin_src emacs-lisp
 (setq org-element-use-cache nil)
+(setq org-fold-core-style 'overlays)
 (use-package org-journal
   :config
   (custom-set-variables
