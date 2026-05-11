@@ -617,7 +617,7 @@
          ("C-h B" . embark-bindings))
   :config
   (setq prefix-help-command #'embark-prefix-help-command)
-  (define-key embark-general-map (kbd "G") #'consult-git-grep))
+  (define-key embark-general-map (kbd "G") #'consult-ripgrep))
 
 ;; Embark-Consult integration
 (use-package embark-consult
