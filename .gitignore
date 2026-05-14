@@ -1,0 +1,53 @@
+# Emacs auto-generated files
+*~
+\#*\#
+.\#*
+
+# Package management
+elpa/
+straight/
+eln-cache/
+auto-save-list/
+
+# Generated from config.org
+config.el
+
+# LSP servers (large binaries)
+lsp-servers/
+eglot-x/
+
+# Tree-sitter grammars
+tree-sitter/
+
+# Session data
+.lsp-session-v1
+network-security.data
+transient/
+url/
+eshell/
+racket-mode/
+
+# Project caches
+projectile.cache
+projectile-bookmarks.eld
+projects
+.cache/
+
+# Save files
+savefiles/
+abbrev_defs
+bookmarks
+recentf
+
+# AI tool data
+.chatgpt-shell.el
+chatgpt/
+
+# Database files
+*.sqlite
+
+# Game scores
+games/
+
+# Tramp
+tramp
