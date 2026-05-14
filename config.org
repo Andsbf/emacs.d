@@ -36,11 +36,10 @@
 * Personal Information
 
 #+begin_src emacs-lisp
-(setq user-full-name "Anderson Saunders"
-      user-mail-address "andsbf@gmail.com"
-      calendar-latitude -28.095234496717318
-      calendar-longitude 153.4241684081013
-      calendar-location-name "Gold Coast,QLD, Australia"
+(setq user-full-name "Ando"
+      calendar-latitude -28.10
+      calendar-longitude 153.42
+      calendar-location-name "Gold Coast, QLD, Australia"
       calendar-date-style "european")
 #+end_src
 
@@ -504,7 +503,7 @@
   "Get file-path relative to repo"
   (string-join (nthcdr 5 (split-string buffer-file-name "/")) "/"))
 
-(defun ando-file-in-gh ()
+(defun ando-file-in-ca-gh ()
   "Copy a file to its address in master on CA Github"
   (interactive)
   (let ((file-gh-address (format "https://github.com/cultureamp/%s/blob/master/%s#L%s"
