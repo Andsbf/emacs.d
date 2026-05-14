@@ -937,6 +937,16 @@ See `sort-regexp-fields'."
 (message "Happy days")
 #+end_src
 
+* Terminal (vterm)
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :bind ("C-c t" . vterm)
+  :config
+  (setq vterm-max-scrollback 10000)
+  (setq vterm-kill-buffer-on-exit t))
+#+end_src
+
 * AI Tools
 
 ** Claude Code IDE
