@@ -52,9 +52,6 @@ there's no active region."
 ;; up some operations."
 ;;   (setq gc-cons-threshold 20000000))
 
-(defun sensible-defaults/delete-trailing-whitespace ()
-  "Call DELETE-TRAILING-WHITESPACE every time a buffer is saved."
-  (add-hook 'before-save-hook 'delete-trailing-whitespace))
 
 (defun sensible-defaults/treat-camelcase-as-separate-words ()
   "Treat CamelCaseSubWords as separate words in every programming
@@ -158,7 +155,6 @@ insert the text where point is, not where the mouse cursor is."
   "Use all of the sensible-defaults settings."
   ;; (sensible-defaults/open-files-from-home-directory)
   ;; (sensible-defaults/increase-gc-threshold)
-  (sensible-defaults/delete-trailing-whitespace)
   (sensible-defaults/treat-camelcase-as-separate-words)
   (sensible-defaults/automatically-follow-symlinks)
   (sensible-defaults/make-scripts-executable)
