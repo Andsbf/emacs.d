@@ -170,7 +170,7 @@
                                    array array_pattern
                                    jsx_expression)))
   (indent-bars-width-frac 0.15)
-  (indent-bars-highlight-current-depth '(:color "dark cyan" :blend 0.5))
+  (indent-bars-highlight-current-depth '(:pattern "."))
   (indent-bars-treesit-scope '((ruby method class module if unless case
                                       while until for do_block begin)
                                (typescript function_declaration
@@ -605,7 +605,8 @@
          :map minibuffer-local-map
          ("C-r" . consult-history))
   :config
-  (setq consult-narrow-key "<"))
+  (setq consult-narrow-key "<")
+  (setq consult-point-placement 'match-beginning))
 
 ;; Embark - contextual actions
 (use-package embark
@@ -671,6 +672,9 @@
 ;; Ruby indentation settings
 (setq ruby-indent-level 2)
 (setq ruby-indent-tabs-mode nil)
+(setq ruby-deep-indent-paren-style 'space)
+(setq ruby-method-call-indent nil)
+(setq ruby-method-params-indent 0)
 #+end_src
 
 * Code Editing Tools
