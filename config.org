@@ -62,8 +62,6 @@
 * Org-mode and Roam
 
 #+begin_src emacs-lisp
-(setq org-element-use-cache nil)
-(setq org-fold-core-style 'overlays)
 (custom-set-variables
  '(org-adapt-indentation t)
  '(org-startup-indented t)
@@ -144,8 +142,7 @@
 (setq-default indent-tabs-mode nil
               tab-width 2)
 (setq js-indent-level 2
-      typescript-indent-level 2
-      typescript-expr-indent-offset 2
+      typescript-ts-mode-indent-offset 2
       css-indent-offset 2)
 #+end_src
 
@@ -460,9 +457,8 @@
   (interactive)
   (message (ando-yaml-path-to-point)))
 
-(eval-after-load 'yaml-mode
-  '(progn
-     (define-key yaml-mode-map (kbd "C-x p") 'ando-yaml-show-path-to-point)))
+(with-eval-after-load 'yaml-ts-mode
+  (define-key yaml-ts-mode-map (kbd "C-c y p") #'ando-yaml-show-path-to-point))
 
 (defun ando-wait-for-buffer (buffer-name)
   "Wait for the specified buffer to open."
@@ -554,17 +550,25 @@
 * Project Management
 
 #+begin_src emacs-lisp
-;; Projectile
-(use-package projectile
-  :init
-  (setq projectile-completion-system 'default)
+;; Built-in project.el (Emacs 29+)
+(use-package project
+  :straight nil
+  :bind (("C-c p f" . project-find-file)
+         ("C-c p g" . project-find-regexp)
+         ("C-c p d" . project-find-dir)
+         ("C-c p b" . consult-project-buffer)
+         ("C-c p p" . project-switch-project)
+         ("C-c p c" . project-compile)
+         ("C-c p k" . project-kill-buffers)
+         ("C-c p !" . project-shell-command)
+         ("C-x f"   . project-find-file))
   :config
-  (projectile-mode +1)
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (global-set-key (kbd "C-x f") #'projectile-find-file-dwim-other-window)
-  (setq projectile-enable-caching t)
-  (setq projectile-indexing-method 'hybrid))
+  (setq project-switch-commands
+        '((project-find-file "Find file" ?f)
+          (consult-ripgrep "Ripgrep" ?g)
+          (project-find-dir "Find dir" ?d)
+          (consult-project-buffer "Buffer" ?b)
+          (project-shell "Shell" ?s))))
 #+end_src
 
 * Completion Framework (Vertico Ecosystem)
@@ -643,9 +647,7 @@
   (setq web-mode-enable-auto-closing t)
   (setq web-mode-enable-auto-pairing t))
 
-;; TypeScript/JavaScript indentation
-(setq typescript-ts-mode-indent-offset 2)
-(setq js-indent-level 2)
+;; TypeScript/JavaScript indentation is set in "Indentation & Tabs" section
 #+end_src
 
 ** Kotlin
@@ -744,7 +746,7 @@
          ;; (kotlin-ts-mode . eglot-ensure)
          (rust-mode . eglot-ensure))
   :config
-  (add-to-list 'eglot-server-programs '(ruby-ts-mode "solargraph" "socket" "--port" :autoport))
+  (add-to-list 'eglot-server-programs '(ruby-ts-mode "ruby-lsp"))
   (add-to-list 'eglot-server-programs '((typescript-ts-mode tsx-ts-mode js-ts-mode) "typescript-language-server" "--stdio"))
   ;; Kotlin LSP (official JetBrains)
   ;;(add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio"))
@@ -800,8 +802,8 @@
 ;; Minibuffer height
 (setq max-mini-window-height 0.25)
 
-;; Eglot connection timeout (nil = no timeout)
-(setq eglot-connect-timeout nil)
+;; Eglot connection timeout
+(setq eglot-connect-timeout 60)
 
 ;; Org-mode startup folding
 (setq org-startup-folded 'show3levels)
@@ -821,12 +823,6 @@ affects the sort order.
 See `sort-regexp-fields'."
   (interactive "*P\nr")
   (sort-regexp-fields reverse "\\w+" "\\&" beg end))
-
-;; Toggle maximize buffer
-;; Projectile ignore patterns
-(add-to-list 'projectile-globally-ignored-files ".#*")
-(add-to-list 'projectile-globally-ignored-directories "tree-sitter")
-(add-to-list 'projectile-globally-ignored-directories "lsp-servers")
 
 ;; Dired settings
 (put 'dired-find-alternate-file 'disabled nil)
@@ -937,7 +933,16 @@ See `sort-regexp-fields'."
   :straight (:host github :repo "copilot-emacs/copilot.el" :branch "main")
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
-              ("<tab>" . copilot-accept-completion)
-              ("TAB" . copilot-accept-completion)))
+              ("<tab>" . ando/copilot-or-corfu-tab)
+              ("TAB" . ando/copilot-or-corfu-tab))
+  :config
+  (defun ando/copilot-or-corfu-tab ()
+    "Accept copilot completion, or fall through to corfu if its popup is active."
+    (interactive)
+    (if (and (bound-and-true-p corfu-mode)
+             (frame-live-p (bound-and-true-p corfu--frame))
+             (frame-visible-p corfu--frame))
+        (corfu-next 1)
+      (copilot-accept-completion))))
 #+end_src
 

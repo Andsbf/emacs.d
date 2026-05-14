@@ -28,8 +28,6 @@ eshell/
 racket-mode/
 
 # Project caches
-projectile.cache
-projectile-bookmarks.eld
 projects
 .cache/
 

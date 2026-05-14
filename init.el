@@ -13,14 +13,20 @@
   (load bootstrap-file nil 'nomessage))
 
 ;; Tell straight.el to use built-in packages
-(setq straight-built-in-pseudo-packages '(emacs python project))
+(setq straight-built-in-pseudo-packages '(emacs python project eglot use-package flymake))
 
 ;; Configure straight.el to use use-package
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-;; Update recipe repositories to get latest package definitions
-(straight-pull-recipe-repositories)
+;; Update recipe repositories periodically (every 7 days)
+(let ((stamp-file (expand-file-name "straight/last-recipe-pull" user-emacs-directory)))
+  (when (or (not (file-exists-p stamp-file))
+            (> (float-time (time-subtract (current-time)
+                                          (nth 5 (file-attributes stamp-file))))
+               (* 7 24 60 60)))
+    (straight-pull-recipe-repositories)
+    (with-temp-file stamp-file (insert (current-time-string)))))
 
 ;; Load org-mode via straight.el BEFORE org-babel-load-file
 ;; This prevents built-in org from loading and causing version mismatch
@@ -29,16 +35,3 @@
 ;; Load main configuration
 (org-babel-load-file "~/.emacs.d/config.org")
 
-;; Custom settings
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(uniquify-buffer-name-style 'forward nil (uniquify)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
