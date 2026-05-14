@@ -815,6 +815,11 @@
 ;; Org-mode startup folding
 (setq org-startup-folded 'show3levels)
 
+;; Org-mode visual polish
+(setq org-hide-emphasis-markers t)
+(setq org-pretty-entities t)
+(setq org-ellipsis " ▾")
+
 ;; Yasnippet directories - add custom snippets directory
 (with-eval-after-load 'yasnippet
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets" t))
