@@ -787,6 +787,8 @@
 
 ;; Ediff preferences
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(with-eval-after-load 'outline
+  (add-hook 'ediff-prepare-buffer-hook #'org-show-all))
 
 ;; Eldoc and help settings
 (setq eldoc-idle-delay 3)
