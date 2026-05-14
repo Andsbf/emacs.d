@@ -70,37 +70,39 @@
 (setq reb-re-syntax 'string)
 #+end_src
 
-* Org-mode and Journaling
+* Org-mode and Roam
 
 #+begin_src emacs-lisp
 (setq org-element-use-cache nil)
 (setq org-fold-core-style 'overlays)
-(use-package org-journal
+(custom-set-variables
+ '(org-adapt-indentation t)
+ '(org-startup-indented t)
+ '(org-src-preserve-indentation nil)
+ '(org-edit-src-content-indentation 0))
+
+(use-package org-roam
+  :custom
+  (org-roam-directory "~/Documents/notes/org-roam")
+  (org-roam-dailies-directory "daily/")
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ("C-c n j" . org-roam-dailies-capture-today)
+         ("C-c n d" . org-roam-dailies-goto-today))
   :config
-  (custom-set-variables
-   '(org-adapt-indentation t)
-   '(org-startup-indented t)
-   '(org-src-preserve-indentation nil)
-   '(org-edit-src-content-indentation 0)
-   '(org-agenda-files '("~/Documents/journals/"))
-   '(org-journal-date-format "%A, %d/%m/%Y")
-   '(org-journal-file-format "%Y%m%d.org")
-   '(org-journal-time-format "%R\n")
-   '(org-journal-time-prefix "\n** ")
-   '(org-journal-carryover-items "TODO=\"TODO\"-carried"))
-  :bind ("C-c C-j" . org-journal-new-entry))
-(defun my-old-carryover (old_carryover)
-  (save-excursion
-    (let ((matcher (cdr (org-make-tags-matcher org-journal-carryover-items))))
-      (dolist (entry (reverse old_carryover))
-        (save-restriction
-          (narrow-to-region (car entry) (cadr entry))
-          (goto-char (point-min))
-          (org-scan-tags '(lambda ()
-                            (org-set-tags ":carried:"))
-                         matcher org--matcher-tags-todo-only))))))
-(setq org-journal-handle-old-carryover 'my-old-carryover)
-(org-journal-mode)
+  (org-roam-db-autosync-mode))
+
+(use-package org-roam-ui
+  :after org-roam
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
+
 (global-set-key (kbd "C-c c") #'org-capture)
 (setq org-capture-templates
       '(("p" "Personal Notes" entry
