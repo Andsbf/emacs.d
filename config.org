@@ -67,6 +67,12 @@
  '(org-startup-indented t)
  '(org-edit-src-content-indentation 0))
 
+;; Use overlays instead of text-properties for folding. Without this,
+;; consult-line won't show lines for folded/hidden org headings.
+;; TODO: Remove once org-mode and consult-line improve compatibility with
+;; the default 'text-properties fold style.
+(setq org-fold-core-style 'overlays)
+
 (use-package org-roam
   :custom
   (org-roam-directory "~/Documents/notes/org-roam")
@@ -580,7 +586,8 @@
   (vertico-mode)
   :config
   (setq vertico-cycle t)
-  (setq enable-recursive-minibuffers t))
+  (setq enable-recursive-minibuffers t)
+  (define-key vertico-map (kbd "M-SPC") #'embark-select))
 
 ;; Orderless - flexible matching
 (use-package orderless
@@ -945,4 +952,3 @@ See `sort-regexp-fields'."
         (corfu-next 1)
       (copilot-accept-completion))))
 #+end_src
-
