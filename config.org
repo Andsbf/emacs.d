@@ -48,19 +48,9 @@
 
 #+begin_src emacs-lisp
 (setq large-file-warning-threshold 100000000)
-(setq gc-cons-threshold 50000000)
-#+end_src
 
-* PlantUML (deactivated)
-
-#+begin_src emacs-lisp
-;; (use-package plantuml-mode
-;;   :ensure t)
-;; (setq plantuml-jar-path "~/.emacs.d/plantuml-1.2022.2.jar")
-;; (setq plantuml-default-exec-mode 'jar)
-;; (setq org-plantuml-jar-path (expand-file-name "/Users/ando/.emacs.d/plantuml-1.2022.2.jar"))
-;; (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
-;; (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+(use-package gcmh
+  :config (gcmh-mode 1))
 #+end_src
 
 * Cursor & Regex
@@ -78,7 +68,6 @@
 (custom-set-variables
  '(org-adapt-indentation t)
  '(org-startup-indented t)
- '(org-src-preserve-indentation nil)
  '(org-edit-src-content-indentation 0))
 
 (use-package org-roam
@@ -275,6 +264,7 @@
 
 #+begin_src emacs-lisp
 (use-package subword
+  :straight nil
   :config (global-subword-mode 1))
 #+end_src
 
@@ -297,6 +287,7 @@
 
 #+begin_src emacs-lisp
 (use-package hl-line
+  :straight nil
   :config
   (global-hl-line-mode +1))
 #+end_src
@@ -347,6 +338,7 @@
 
 #+begin_src emacs-lisp
 (use-package recentf
+  :straight nil
   :config
   (setq recentf-save-file (expand-file-name "recentf" ando-savefiles-dir)
         recentf-max-saved-items 500
@@ -359,6 +351,7 @@
 
 #+begin_src emacs-lisp
 (use-package savehist
+  :straight nil
   :config
   (setq savehist-additional-variables
         '(search-ring regexp-search-ring)
@@ -411,9 +404,10 @@
   :config
   (setq magit-save-repository-buffers nil)
   (setq magit-list-refs-sortby "-committerdate"))
-(with-eval-after-load 'magit
-  (require 'forge))
-(setq forge-pull-requests-limit 50)
+(use-package forge
+  :after magit
+  :config
+  (setq forge-pull-requests-limit 50))
 #+end_src
 
 ** Electric-pair
@@ -438,7 +432,7 @@
     0))
 
 (defun ando-yaml-current-line ()
-  (buffer-substring-no-properties (point-at-bol) (point-at-eol)))
+  (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
 
 (defun ando-yaml-clean-string (s)
   (let* ((s (replace-regexp-in-string "^[[:blank:]-:]*" "" s))
@@ -485,7 +479,7 @@
   (eldoc--invoke-strategy t)
   (ando-wait-for-buffer "*eldoc*")
   (with-current-buffer "*eldoc*"
-    (goto-line 1)
+    (goto-char (point-min))
     (kill-new (buffer-substring (line-beginning-position) (line-end-position)))
     (kill-buffer "*eldoc*")))
 
@@ -730,17 +724,7 @@
   ;; Add completion backends
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  :config
-  ;; Bind prefix keys for manual completion
-  (define-key global-map (kbd "C-c p p") #'completion-at-point)
-  (define-key global-map (kbd "C-c p d") #'cape-dabbrev)
-  (define-key global-map (kbd "C-c p f") #'cape-file)
-  (define-key global-map (kbd "C-c p k") #'cape-keyword))
-
-;; Integrate yasnippet with Cape
-(with-eval-after-load 'cape
-  (add-to-list 'completion-at-point-functions #'cape-yasnippet))
+  (add-to-list 'completion-at-point-functions #'cape-keyword))
 #+end_src
 
 * Language Server Protocol (LSP)
@@ -769,7 +753,7 @@
 #+begin_src emacs-lisp
 ;; Flymake - built-in syntax checking (integrates with eglot)
 (use-package flymake
-  :ensure nil  ;; Built-in
+  :straight nil
   :hook (prog-mode . flymake-mode)
   :bind (:map flymake-mode-map
               ("M-n" . flymake-goto-next-error)
@@ -854,44 +838,12 @@ See `sort-regexp-fields'."
       (delete-other-windows))))
 (global-set-key (kbd "C-c m b") 'toggle-maximize-buffer)
 
-;; Theme synchronization based on time of day
+;; Clean theme switching - disable previous theme before loading new one
 (defun disable-all-themes ()
-  "disable all active themes."
+  "Disable all active themes."
   (dolist (i custom-enabled-themes)
     (disable-theme i)))
-(defadvice load-theme (before disable-themes-first activate)
-  (disable-all-themes))
-(defvar ando-synchronize-theme-enabled t
-  "Whether automatic theme synchronization is enabled.")
-(defun ando-synchronize-theme ()
-  "Load a theme depending on the current time, if auto sync is enabled."
-  (when ando-synchronize-theme-enabled
-    (let ((hour (string-to-number (substring (current-time-string) 11 13))))
-      (if (member hour (number-sequence 6 17))
-          (load-theme 'solarized-light t)
-        (load-theme 'solarized-dark t)))))
-(run-with-timer 0 3600 #'ando-synchronize-theme)
-(defun ando-disable-synchronize-theme ()
-  "Disable automatic theme synchronization."
-  (interactive)
-  (setq ando-synchronize-theme-enabled nil))
-(defun ando-enable-synchronize-theme ()
-  "Enable automatic theme synchronization and run immediately."
-  (interactive)
-  (setq ando-synchronize-theme-enabled t)
-  (ando-synchronize-theme))
-(defun ando-toggle-synchronize-theme ()
-  "Toggle automatic theme synchronization."
-  (interactive)
-  (setq ando-synchronize-theme-enabled (not ando-synchronize-theme-enabled))
-  (message "Theme auto-sync %s"
-           (if ando-synchronize-theme-enabled "enabled" "disabled")))
-(defun ando-choose-theme ()
-  "Disable auto theme sync and interactively choose a theme to load."
-  (interactive)
-  (ando-disable-synchronize-theme)
-  (call-interactively #'load-theme)
-  (message "Auto theme sync disabled; manual theme chosen."))
+(advice-add 'load-theme :before (lambda (&rest _) (disable-all-themes)))
 #+end_src
 
 * Utility Packages
@@ -902,16 +854,17 @@ See `sort-regexp-fields'."
   :config
   (which-key-mode))
 
-;; MacOS clipboard integration
-(defun copy-from-osx ()
-  (shell-command-to-string "pbpaste"))
-(defun paste-to-osx (text &optional push)
-  (let ((process-connection-type nil))
-    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-      (process-send-string proc text)
-      (process-send-eof proc))))
-(setq interprogram-cut-function 'paste-to-osx)
-(setq interprogram-paste-function 'copy-from-osx)
+;; TODO: Review - GUI Emacs handles clipboard natively, these may be unnecessary.
+;; Only needed if running Emacs in terminal mode (emacs -nw).
+;; (defun copy-from-osx ()
+;;   (shell-command-to-string "pbpaste"))
+;; (defun paste-to-osx (text &optional push)
+;;   (let ((process-connection-type nil))
+;;     (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+;;       (process-send-string proc text)
+;;       (process-send-eof proc))))
+;; (setq interprogram-cut-function 'paste-to-osx)
+;; (setq interprogram-paste-function 'copy-from-osx)
 
 ;; Mark ring navigation
 (setq set-mark-command-repeat-pop t)
