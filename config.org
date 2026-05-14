@@ -754,13 +754,14 @@
          (typescript-ts-mode . eglot-ensure)
          (tsx-ts-mode . eglot-ensure)
          (js-ts-mode . eglot-ensure)
-         (kotlin-ts-mode . eglot-ensure)
+         ;; (kotlin-ts-mode . eglot-ensure)
          (rust-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs '(ruby-ts-mode "solargraph" "socket" "--port" :autoport))
   (add-to-list 'eglot-server-programs '((typescript-ts-mode tsx-ts-mode js-ts-mode) "typescript-language-server" "--stdio"))
   ;; Kotlin LSP (official JetBrains)
-  (add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio")))
+  ;;(add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio"))
+  )
 #+end_src
 
 * Syntax Checking (Flymake)
