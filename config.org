@@ -308,24 +308,10 @@
   (global-hl-line-mode +1))
 #+end_src
 
-** Solarized Theme
+** Theme
 
 #+begin_src emacs-lisp
-(use-package solarized-theme
-  :config
-  (load-theme 'solarized-light t)
-  (setq solarized-use-variable-pitch nil
-        solarized-height-plus-1 1.0
-        solarized-height-plus-2 1.0
-        solarized-height-plus-3 1.0
-        solarized-height-plus-4 1.0)
-  (let ((line (face-attribute 'mode-line :underline)))
-    (set-face-attribute 'mode-line          nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :overline   line)
-    (set-face-attribute 'mode-line-inactive nil :underline  line)
-    (set-face-attribute 'mode-line          nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :box        nil)
-    (set-face-attribute 'mode-line-inactive nil :background "#f9f2d9")))
+(load-theme 'modus-operandi t)
 #+end_src
 
 ** Uniquify
