@@ -25,12 +25,62 @@
 * Sensible Defaults
 
 #+begin_src emacs-lisp
-(load-file "~/.emacs.d/sensible-defaults.el")
-(sensible-defaults/use-all-settings)
-(sensible-defaults/use-all-keybindings)
-(sensible-defaults/backup-to-temp-directory)
+;; Utility functions
+(defun ando/comment-or-uncomment-region-or-line ()
+  "Comments or uncomments the region or the current line if
+there's no active region."
+  (interactive)
+  (let (beg end)
+    (if (region-active-p)
+        (setq beg (region-beginning) end (region-end))
+      (setq beg (line-beginning-position) end (line-end-position)))
+    (comment-or-uncomment-region beg end)))
+
+(defun ando/reset-text-size ()
+  (interactive)
+  (text-scale-set 0))
+
+;; Settings
+(setq vc-follow-symlinks t)
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+(setq sentence-end-double-space nil)
+(add-hook 'before-save-hook
+          (lambda ()
+            (when buffer-file-name
+              (let ((dir (file-name-directory buffer-file-name)))
+                (when (and (not (file-exists-p dir))
+                           (y-or-n-p (format "Directory %s does not exist. Create it?" dir)))
+                  (make-directory dir t))))))
+(setq require-final-newline t)
+(setq confirm-kill-emacs 'y-or-n-p)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message nil)
+(setq use-short-answers t)
+(show-paren-mode t)
+(setq show-paren-delay 0.0)
+(setq show-paren-style 'expression)
+(setq visible-bell t)
+(setq-default fill-column 80)
+(setq ns-pop-up-frames nil)
+(setq mouse-yank-at-point t)
+
+;; Backups to temp directory
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 (setq lock-file-name-transforms
       '(("\\`/.*/\\([^/]+\\)\\'" "/var/tmp/\\1" t)))
+
+;; Keybindings
+(global-set-key (kbd "M-;") 'ando/comment-or-uncomment-region-or-line)
+(global-set-key (kbd "<home>") 'move-beginning-of-line)
+(global-set-key (kbd "<end>") 'move-end-of-line)
+(define-key global-map (kbd "C-)") 'ando/reset-text-size)
+(define-key global-map (kbd "C-+") 'text-scale-increase)
+(define-key global-map (kbd "C-=") 'text-scale-increase)
+(define-key global-map (kbd "C-_") 'text-scale-decrease)
+(define-key global-map (kbd "C--") 'text-scale-decrease)
 #+end_src
 
 * Personal Information
