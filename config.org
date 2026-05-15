@@ -41,9 +41,9 @@ there's no active region."
   (text-scale-set 0))
 
 ;; Settings
-(setq vc-follow-symlinks t)
+(setq vc-follow-symlinks t)                ; Don't prompt when visiting symlinked files
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-(setq sentence-end-double-space nil)
+(setq sentence-end-double-space nil)       ; Affects M-a/M-e sentence navigation
 (add-hook 'before-save-hook
           (lambda ()
             (when buffer-file-name
@@ -55,20 +55,21 @@ there's no active region."
 (setq confirm-kill-emacs 'y-or-n-p)
 (setq inhibit-startup-message t)
 (setq initial-scratch-message nil)
-(setq use-short-answers t)
+(setq use-short-answers t)                 ; y/n instead of yes/no
 (show-paren-mode t)
 (setq show-paren-delay 0.0)
-(setq show-paren-style 'expression)
-(setq visible-bell t)
+(setq show-paren-style 'expression)        ; Highlight entire expression between parens
+(setq visible-bell t)                      ; Flash screen instead of audible beep
 (setq-default fill-column 80)
-(setq ns-pop-up-frames nil)
-(setq mouse-yank-at-point t)
+(setq ns-pop-up-frames nil)                ; macOS: open files in existing frame, not a new one
+(setq mouse-yank-at-point t)               ; Middle-click paste at point, not at mouse position
 
 ;; Backups to temp directory
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+;; Store .#lockfiles in /var/tmp instead of alongside the file
 (setq lock-file-name-transforms
       '(("\\`/.*/\\([^/]+\\)\\'" "/var/tmp/\\1" t)))
 
@@ -96,7 +97,7 @@ there's no active region."
 * Large files and Garbage Collection
 
 #+begin_src emacs-lisp
-(setq large-file-warning-threshold 100000000)
+(setq large-file-warning-threshold 100000000) ; ~100MB before Emacs warns about file size
 
 (use-package gcmh
   :config (gcmh-mode 1))
@@ -106,7 +107,7 @@ there's no active region."
 
 #+begin_src emacs-lisp
 (blink-cursor-mode t)
-(setq reb-re-syntax 'string)
+(setq reb-re-syntax 'string) ; re-builder uses string syntax (no double-escaping backslashes)
 #+end_src
 
 * Org-mode and Roam
@@ -181,8 +182,8 @@ there's no active region."
 
 #+begin_src emacs-lisp
 (setq scroll-margin 0
-      scroll-conservatively 100
-      scroll-preserve-screen-position 1)
+      scroll-conservatively 100           ; Scroll line-by-line instead of jumping half-screen
+      scroll-preserve-screen-position 1)  ; Keep cursor at same screen position when scrolling
 #+end_src
 
 ** Mode Line
@@ -297,7 +298,7 @@ there's no active region."
 ** Org Source Indentation
 
 #+begin_src emacs-lisp
-(setq org-src-preserve-indentation t)
+(setq org-src-preserve-indentation t) ; Don't add extra indentation inside org src blocks on export/tangle
 #+end_src
 
 ** Selection
@@ -346,7 +347,7 @@ there's no active region."
 ** Tab Key
 
 #+begin_src emacs-lisp
-(setq tab-always-indent 'complete)
+(setq tab-always-indent 'complete) ; TAB triggers completion when line is already indented
 #+end_src
 
 ** Highlight Line
@@ -367,7 +368,7 @@ there's no active region."
 ** Uniquify
 
 #+begin_src emacs-lisp
-(setq uniquify-buffer-name-style 'forward)
+(setq uniquify-buffer-name-style 'forward) ; Show path prefix for same-name buffers (dir1/file vs dir2/file)
 #+end_src
 
 ** Volatile Highlights
@@ -395,7 +396,7 @@ there's no active region."
   (setq recentf-save-file (expand-file-name "recentf" ando-savefiles-dir)
         recentf-max-saved-items 500
         recentf-max-menu-items 15
-        recentf-auto-cleanup 'never)
+        recentf-auto-cleanup 'never) ; Don't prune dead files from list on startup (slow over TRAMP)
   (recentf-mode +1))
 #+end_src
 
@@ -454,8 +455,8 @@ there's no active region."
 (use-package magit
   :bind (("C-x g" . magit-status))
   :config
-  (setq magit-save-repository-buffers nil)
-  (setq magit-list-refs-sortby "-committerdate"))
+  (setq magit-save-repository-buffers nil)       ; Don't auto-save buffers on magit operations
+  (setq magit-list-refs-sortby "-committerdate")) ; Most recently committed branches first
 (use-package forge
   :after magit
   :config
@@ -635,8 +636,8 @@ there's no active region."
   :init
   (vertico-mode)
   :config
-  (setq vertico-cycle t)
-  (setq enable-recursive-minibuffers t)
+  (setq vertico-cycle t)                 ; Wrap around at top/bottom of candidate list
+  (setq enable-recursive-minibuffers t)  ; Allow commands inside the minibuffer (e.g., M-x while in M-x)
   (define-key vertico-map (kbd "M-SPC") #'embark-select))
 
 ;; Orderless - flexible matching
@@ -665,15 +666,15 @@ there's no active region."
          :map minibuffer-local-map
          ("C-r" . consult-history))
   :config
-  (setq consult-narrow-key "<")
-  (setq consult-point-placement 'match-beginning))
+  (setq consult-narrow-key "<")                  ; Press < to filter by category in consult
+  (setq consult-point-placement 'match-beginning)) ; Jump to start of match, not end
 
 ;; Embark - contextual actions
 (use-package embark
   :bind (("C-." . embark-act)
          ("C-h B" . embark-bindings))
   :config
-  (setq prefix-help-command #'embark-prefix-help-command)
+  (setq prefix-help-command #'embark-prefix-help-command) ; C-h after prefix key shows embark menu
   (define-key embark-general-map (kbd "G") #'consult-ripgrep))
 
 ;; Embark-Consult integration
@@ -730,9 +731,9 @@ there's no active region."
 ;; Ruby indentation settings
 (setq ruby-indent-level 2)
 (setq ruby-indent-tabs-mode nil)
-(setq ruby-deep-indent-paren-style 'space)
-(setq ruby-method-call-indent nil)
-(setq ruby-method-params-indent 0)
+(setq ruby-deep-indent-paren-style 'space) ; Don't deep-indent args to match opening paren
+(setq ruby-method-call-indent nil)         ; Don't extra-indent chained method calls
+(setq ruby-method-params-indent 0)         ; Don't indent method params beyond the def
 #+end_src
 
 * Code Editing Tools
@@ -823,8 +824,8 @@ there's no active region."
               ("C-c ! l" . flymake-show-buffer-diagnostics)
               ("C-c ! L" . flymake-show-project-diagnostics))
   :config
-  (setq flymake-no-changes-timeout 0.5)
-  (setq flymake-start-on-save-buffer t))
+  (setq flymake-no-changes-timeout 0.5)  ; Run checkers 0.5s after last edit
+  (setq flymake-start-on-save-buffer t)) ; Also re-check on save
 
 ;; Flymake-collection - additional checkers for flymake
 (use-package flymake-collection
@@ -848,18 +849,18 @@ there's no active region."
 (put 'set-goal-column 'disabled nil)
 
 ;; Ediff preferences
-(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain) ; Use single frame, no separate control frame
 (with-eval-after-load 'outline
   (add-hook 'ediff-prepare-buffer-hook #'org-show-all))
 
-;; Eldoc and help settings
+;; Eldoc and help settings (default 0.5s — raised to reduce noise)
 (setq eldoc-idle-delay 3)
 (setq help-at-pt-timer-delay 3)
 
-;; Minibuffer height
+;; Minibuffer can grow to 25% of frame height (default is ~40%)
 (setq max-mini-window-height 0.25)
 
-;; Eglot connection timeout
+;; Wait 60s for LSP server to start (default 30s, needed for slow servers)
 (setq eglot-connect-timeout 60)
 
 ;; Org-mode startup folding
@@ -888,7 +889,7 @@ See `sort-regexp-fields'."
 
 ;; Dired settings
 (put 'dired-find-alternate-file 'disabled nil)
-(setq dired-listing-switches "-aBhl")
+(setq dired-listing-switches "-aBhl") ; -a all, -B ignore backups, -h human sizes, -l long format
 
 ;; Window management - toggle maximize buffer
 (defun toggle-maximize-buffer ()
@@ -930,7 +931,7 @@ See `sort-regexp-fields'."
 ;; (setq interprogram-paste-function 'copy-from-osx)
 
 ;; Mark ring navigation
-(setq set-mark-command-repeat-pop t)
+(setq set-mark-command-repeat-pop t) ; After C-u C-SPC, repeat with just C-SPC to cycle mark ring
 
 ;; Load MacOS PATH
 (use-package exec-path-from-shell
@@ -951,13 +952,13 @@ See `sort-regexp-fields'."
 (use-package ace-window
   :bind (("M-o" . ace-window))
   :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (setq aw-scope 'frame))
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)) ; Use home row keys for window labels
+  (setq aw-scope 'frame))                      ; Only label windows in current frame
 
 ;; Moody - better mode-line
 (use-package moody
   :config
-  (setq x-underline-at-descent-line t)
+  (setq x-underline-at-descent-line t) ; Draw underline at bottom of font glyph (fixes moody appearance)
   (moody-replace-mode-line-buffer-identification)
   (moody-replace-vc-mode))
 
