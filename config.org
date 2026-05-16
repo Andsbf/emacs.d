@@ -156,6 +156,9 @@ there's no active region."
          ("C-c n j" . org-roam-dailies-capture-today)
          ("C-c n d" . org-roam-dailies-goto-today))
   :config
+  ;; Include tags in the node display so they are searchable in org-roam-node-find
+  (setq org-roam-node-display-template
+        (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode))
 
 (use-package org-roam-ui
