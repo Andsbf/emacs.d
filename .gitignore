@@ -5,7 +5,8 @@
 
 # Package management
 elpa/
-straight/
+straight/*
+!straight/versions/
 eln-cache/
 auto-save-list/
 
@@ -43,6 +44,8 @@ chatgpt/
 
 # Database files
 *.sqlite
+org-roam.db
+.org-id-locations
 
 # Game scores
 games/
