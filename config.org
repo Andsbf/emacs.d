@@ -171,11 +171,11 @@ there's no active region."
 
 (global-set-key (kbd "C-c c") #'org-capture)
 (setq org-capture-templates
-      '(("p" "Personal Notes" entry
-         (file+headline "~/Documents/notes/p_notes" "Notes")
+      '(("p" "Personal Quick Note" entry
+         (file+headline "~/Documents/notes/org-roam/inbox.org" "Personal")
          "\n* %? - %U" :prepend t :empty-lines-after 1)
-        ("w" "Work  Notes" entry
-         (file+headline "~/Documents/notes/w_notes" "Notes")
+        ("w" "Work Quick Note" entry
+         (file+headline "~/Documents/notes/org-roam/inbox.org" "Work")
          "\n* %? - %U" :prepend t :empty-lines-after 1)))
 (add-hook 'auto-save-hook 'org-save-all-org-buffers)
 #+end_src
