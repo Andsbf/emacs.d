@@ -820,7 +820,7 @@ there's no active region."
   (add-to-list 'eglot-server-programs '(ruby-ts-mode "ruby-lsp"))
   (add-to-list 'eglot-server-programs '((typescript-ts-mode tsx-ts-mode js-ts-mode) "typescript-language-server" "--stdio"))
   ;; Kotlin LSP (official JetBrains)
-  ;;(add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio"))
+  (add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio"))
   )
 #+end_src
 
