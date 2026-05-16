@@ -139,6 +139,16 @@ there's no active region."
   (org-roam-directory "~/Documents/notes/org-roam")
   (org-roam-dailies-directory "daily/")
   (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("p" "Personal" plain "%?"
+      :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :personal:\n")
+      
+      :unnarrowed t)
+     ("w" "Work" plain "%?"
+      :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :work:\n")
+      :unnarrowed t)))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n i" . org-roam-node-insert)
