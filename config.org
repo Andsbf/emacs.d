@@ -991,7 +991,24 @@ See `sort-regexp-fields'."
   :bind ("C-c t" . vterm)
   :config
   (setq vterm-max-scrollback 10000)
-  (setq vterm-kill-buffer-on-exit t))
+  (setq vterm-kill-buffer-on-exit t)
+  ;; Workaround for vterm display corruption (input overlaps previous output).
+  ;; Vterm's Emacs buffer can desync from libvterm's internal state.
+  ;; A brief window resize sends SIGWINCH to the child process (e.g. Claude Code),
+  ;; forcing a full TUI repaint that brings everything back in sync.
+  (defun ando/vterm-refresh ()
+    "Force vterm to re-sync by briefly resizing the window."
+    (interactive)
+    (when (eq major-mode 'vterm-mode)
+      (enlarge-window-horizontally 1)
+      (sit-for 0.1)
+      (shrink-window-horizontally 1)))
+  (define-key vterm-mode-map (kbd "C-c r") #'ando/vterm-refresh)
+  ;; Automatically fix display when switching to a vterm window
+  (add-hook 'window-selection-change-functions
+            (lambda (_frame)
+              (when (eq major-mode 'vterm-mode)
+                (ando/vterm-refresh)))))
 #+end_src
 
 * AI Tools
