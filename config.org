@@ -1004,12 +1004,7 @@ See `sort-regexp-fields'."
       (enlarge-window-horizontally 1)
       (sit-for 0.1)
       (shrink-window-horizontally 1)))
-  (define-key vterm-mode-map (kbd "C-c r") #'ando/vterm-refresh)
-  ;; Automatically fix display when switching to a vterm window
-  (add-hook 'window-selection-change-functions
-            (lambda (_frame)
-              (when (eq major-mode 'vterm-mode)
-                (ando/vterm-refresh)))))
+  (define-key vterm-mode-map (kbd "C-c r") #'ando/vterm-refresh))
 #+end_src
 
 * AI Tools
