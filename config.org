@@ -665,7 +665,8 @@ there's no active region."
 
 ;; Consult - enhanced commands
 (use-package consult
-  :bind (("C-s" . consult-line)
+  :bind (("M-y" . consult-yank-pop)
+         ("C-s" . consult-line)
          ("C-x b" . consult-buffer)
          ("C-c C-r" . consult-recent-file)
          ("C-c j" . consult-git-grep)
