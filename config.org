@@ -906,6 +906,7 @@ See `sort-regexp-fields'."
 ;; Dired settings
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-listing-switches "-aBhl") ; -a all, -B ignore backups, -h human sizes, -l long format
+(setq dired-kill-when-opening-new-buffer t) ; Kill dired buffer when opening a new directory
 
 ;; Window management - toggle maximize buffer
 (defun toggle-maximize-buffer ()
@@ -941,6 +942,15 @@ See `sort-regexp-fields'."
 (use-package nerd-icons-dired
   :ensure t
   :hook (dired-mode . nerd-icons-dired-mode))
+
+(use-package dired-subtree
+  :ensure t
+  :bind (:map dired-mode-map
+         ("TAB" . dired-subtree-toggle))
+  :config
+  (advice-add 'dired-subtree-toggle :after (lambda ()
+                                             (when (bound-and-true-p nerd-icons-dired-mode)
+                                               (nerd-icons-dired--refresh)))))
 
 ;; NOTE: The package recommends using a marginalia-mode hook, but since
 ;; marginalia-mode is activated in :init (before nerd-icons-completion loads),
