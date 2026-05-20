@@ -113,10 +113,9 @@ there's no active region."
 * Org-mode and Roam
 
 #+begin_src emacs-lisp
-(custom-set-variables
- '(org-adapt-indentation t)
- '(org-startup-indented t)
- '(org-edit-src-content-indentation 0))
+(setq org-adapt-indentation nil)
+(setq org-startup-indented t)
+(setq org-edit-src-content-indentation 0)
 
 ;; Use overlays instead of text-properties for folding. Without this,
 ;; consult-line won't show lines for folded/hidden org headings.
@@ -647,7 +646,13 @@ there's no active region."
   :config
   (setq vertico-cycle t)                 ; Wrap around at top/bottom of candidate list
   (setq enable-recursive-minibuffers t)  ; Allow commands inside the minibuffer (e.g., M-x while in M-x)
-  (define-key vertico-map (kbd "M-SPC") #'embark-select))
+  (define-key vertico-map (kbd "M-SPC") #'embark-select)
+  ;; Prepend file-type nerd-icon to group titles (e.g., filenames in consult-ripgrep).
+  ;; Uses :around advice to intercept the title before vertico formats it.
+  (with-eval-after-load 'nerd-icons
+    (define-advice vertico--format-group-title (:around (orig title cand) nerd-icons)
+      (funcall orig (concat (nerd-icons-icon-for-file title) " " title) cand))))
+
 
 ;; Orderless - flexible matching
 (use-package orderless
