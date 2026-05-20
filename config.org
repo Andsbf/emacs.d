@@ -929,6 +929,25 @@ See `sort-regexp-fields'."
   :config
   (which-key-mode))
 
+;; Nerd Icons
+(use-package nerd-icons
+  :ensure t)
+
+(use-package nerd-icons-dired
+  :ensure t
+  :hook (dired-mode . nerd-icons-dired-mode))
+
+;; NOTE: The package recommends using a marginalia-mode hook, but since
+;; marginalia-mode is activated in :init (before nerd-icons-completion loads),
+;; the hook has already fired. Direct call here is equivalent since
+;; marginalia-mode is never toggled mid-session.
+(use-package nerd-icons-completion
+  :ensure t
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (nerd-icons-completion-marginalia-setup))
+
 ;; TODO: Review - GUI Emacs handles clipboard natively, these may be unnecessary.
 ;; Only needed if running Emacs in terminal mode (emacs -nw).
 ;; (defun copy-from-osx ()
