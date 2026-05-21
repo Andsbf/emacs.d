@@ -711,15 +711,6 @@ there's no active region."
 (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
 
-;; Keep web-mode for HTML/templates
-(use-package web-mode
-  :mode ("\\.html\\'" "\\.erb\\'" "\\.vue\\'")
-  :config
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-enable-auto-closing t)
-  (setq web-mode-enable-auto-pairing t))
 
 ;; TypeScript/JavaScript indentation is set in "Indentation & Tabs" section
 #+end_src
@@ -903,10 +894,6 @@ See `sort-regexp-fields'."
   (interactive "*P\nr")
   (sort-regexp-fields reverse "\\w+" "\\&" beg end))
 
-;; Dired settings
-(put 'dired-find-alternate-file 'disabled nil)
-(setq dired-listing-switches "-aBhl") ; -a all, -B ignore backups, -h human sizes, -l long format
-(setq dired-kill-when-opening-new-buffer t) ; Kill dired buffer when opening a new directory
 
 ;; Window management - toggle maximize buffer
 (defun toggle-maximize-buffer ()
@@ -939,18 +926,15 @@ See `sort-regexp-fields'."
 (use-package nerd-icons
   :ensure t)
 
-(use-package nerd-icons-dired
+(use-package dirvish
   :ensure t
-  :hook (dired-mode . nerd-icons-dired-mode))
-
-(use-package dired-subtree
-  :ensure t
-  :bind (:map dired-mode-map
-         ("TAB" . dired-subtree-toggle))
-  :config
-  (advice-add 'dired-subtree-toggle :after (lambda ()
-                                             (when (bound-and-true-p nerd-icons-dired-mode)
-                                               (nerd-icons-dired--refresh)))))
+  :init
+  (dirvish-override-dired-mode)
+  :bind (:map dirvish-mode-map
+         ("TAB" . dirvish-subtree-toggle))
+  :custom
+  (dired-listing-switches "-aBhl") ; -a all, -B ignore backups, -h human sizes, -l long format
+  (dirvish-attributes '(nerd-icons subtree-state)))
 
 ;; NOTE: The package recommends using a marginalia-mode hook, but since
 ;; marginalia-mode is activated in :init (before nerd-icons-completion loads),
