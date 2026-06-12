@@ -36,5 +36,5 @@
 (straight-use-package 'org)
 
 ;; Load main configuration
-(org-babel-load-file "~/.emacs.d/config.org")
+(org-babel-load-file "~/.config/emacs/config.org")
 
