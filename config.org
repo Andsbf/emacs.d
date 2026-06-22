@@ -465,6 +465,7 @@ there's no active region."
 (use-package magit
   :bind (("C-x g" . magit-status))
   :config
+  (setq magit-git-executable "/Users/ando/.nix-profile/bin/git") ; Use nix-provided git
   (setq magit-save-repository-buffers nil)       ; Don't auto-save buffers on magit operations
   (setq magit-list-refs-sortby "-committerdate")) ; Most recently committed branches first
 (use-package forge

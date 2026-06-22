@@ -6,6 +6,8 @@
  '(ansi-color-names-vector
    ["#eee8d5" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#839496"])
  '(compilation-message-face 'default)
+ '(consult-ripgrep-args
+   "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip --hidden --glob=!.git")
  '(custom-safe-themes
    '("da15a04d9246e909c7bc4237377c0591cc78ed03a762299a68c42cd832d69298"
      "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5"
