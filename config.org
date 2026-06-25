@@ -205,6 +205,19 @@ there's no active region."
 (line-number-mode t)
 (column-number-mode t)
 (size-indication-mode t)
+
+;; Show the size of the active region (lines, words, chars) in the mode line.
+(defun ando/mode-line-region-info ()
+  "Return a string describing the active region for the mode line."
+  (when (use-region-p)
+    (let ((lines (count-lines (region-beginning) (region-end)))
+          (chars (- (region-end) (region-beginning))))
+      (propertize (format " (%dL %dC)" lines chars)
+                  'face 'mode-line-emphasis))))
+
+;; Append the region indicator after the position info in the mode line.
+(setq mode-line-position
+      (append mode-line-position '((:eval (ando/mode-line-region-info)))))
 #+end_src
 
 ** Frame Title
