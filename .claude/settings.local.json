@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jj restore *)",
+      "Bash(jj st *)",
+      "Bash(jj commit *)",
+      "Bash(jj bookmark *)",
+      "Bash(jj git *)",
+      "Bash(jj log *)"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
  ("auto-compile" . "e03f954a2baa9303e428c4fe5e01a251b45a7511")
  ("avy" . "933d1f36cca0f71e4acb5fac707e9ae26c536264")
  ("cape" . "74d37ab3e1b8d11c3871503c46720b3ed8d4c503")
- ("claude-code-ide.el" . "56db02ee386d009ddb8b1482310f1f9beeefb810")
+ ("claude-code-ide.el" . "a9485f766ea69f6cb3a3f08dea20d44fd6596673")
  ("closql" . "0cc3b6a63e72d0c408e484de39944eafb70b2ca7")
  ("compat" . "d837d0c3501f4e007791f5df2fb9665433c74c51")
  ("cond-let" . "1804968192961aaa663c7b77a8a93d169f709094")
