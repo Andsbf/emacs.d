@@ -1,3 +1,5 @@
+;;; init.el --- Emacs configuration entry point -*- lexical-binding: t; -*-
+
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
