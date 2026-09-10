@@ -68,7 +68,7 @@ straight.el with `straight-use-package-by-default t`, so a bare
   `treesit-language-source-alist`, an `eglot-server-programs` entry, and an
   `eglot-ensure` hook.
 - `C-c` is crowded — `C-c p` project, `C-c n` org-roam, `C-c f` folding,
-  `C-c !` flymake, `C-c t`/`C-c T` terminals, `C-c C-'` Claude. Check for a
+  `C-c !` flymake, `C-c T`/`C-c p t` ghostel, `C-c C-'` Claude. Check for a
   collision before binding.
 
 ## Gotchas
@@ -77,10 +77,10 @@ straight.el with `straight-use-package-by-default t`, so a bare
   so any clone (including straight's) needs a usable ssh key. In a shell without
   a TTY this fails with `ssh_askpass: ... No such file or directory` rather than
   anything informative.
-- The config dir is `~/.config/emacs`, but a few paths still point at
-  `~/.emacs.d` (kotlin LSP script, extra snippets dir). Don't copy that pattern
-  into new code, and don't assume the two are the same directory.
+- The config dir is `~/.config/emacs` and `~/.emacs.d` does not exist. Build
+  config-relative paths with `(expand-file-name "..." user-emacs-directory)`
+  rather than hardcoding either one.
 - `global-display-line-numbers-mode` is on, so terminal-like modes need an
   explicit hook to switch line numbers off.
-- Claude Code IDE runs in ghostel (`claude-code-ide-terminal-backend`); vterm
-  is still available on `C-c t`.
+- Ghostel is the only terminal (vterm was removed), and Claude Code IDE runs
+  in it via `claude-code-ide-terminal-backend`.

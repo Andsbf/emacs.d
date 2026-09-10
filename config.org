@@ -850,7 +850,10 @@ there's no active region."
   (add-to-list 'eglot-server-programs '((typescript-ts-mode tsx-ts-mode js-ts-mode) "typescript-language-server" "--stdio"))
   (add-to-list 'eglot-server-programs '((go-ts-mode go-mod-ts-mode) "gopls"))
   ;; Kotlin LSP (official JetBrains)
-  (add-to-list 'eglot-server-programs '(kotlin-ts-mode "~/.emacs.d/lsp-servers/kotlin/kotlin-lsp.sh" "--stdio"))
+  (add-to-list 'eglot-server-programs
+               `(kotlin-ts-mode
+                 ,(expand-file-name "lsp-servers/kotlin/kotlin-lsp.sh" user-emacs-directory)
+                 "--stdio"))
   )
 #+end_src
 
@@ -916,7 +919,8 @@ there's no active region."
 
 ;; Yasnippet directories - add custom snippets directory
 (with-eval-after-load 'yasnippet
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets" t))
+  (add-to-list 'yas-snippet-dirs
+               (expand-file-name "snippets" user-emacs-directory) t))
 
 ;; Sort words in region
 (defun sort-words (reverse beg end)
@@ -1042,16 +1046,6 @@ See `sort-regexp-fields'."
 
 * Terminal
 
-** vterm
-
-#+begin_src emacs-lisp
-(use-package vterm
-  :bind ("C-c t" . vterm)
-  :config
-  (setq vterm-max-scrollback 10000)
-  (setq vterm-kill-buffer-on-exit t))
-#+end_src
-
 ** Ghostel
 
 Terminal emulator backed by libghostty-vt (the VT engine from Ghostty), loaded
@@ -1076,7 +1070,7 @@ downloads on first use, so there's no toolchain or build step.
   :straight (:host github :repo "manzaltu/claude-code-ide.el")
   :bind ("C-c C-'" . claude-code-ide-menu)
   :config
-  ;; Run Claude in a ghostel terminal instead of vterm.
+  ;; Ghostel rather than the default terminal backend, which needs vterm.
   (setq claude-code-ide-terminal-backend 'ghostel)
   (claude-code-ide-emacs-tools-setup))
 #+end_src

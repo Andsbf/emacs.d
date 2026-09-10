@@ -13,7 +13,6 @@
  ("dirvish" . "d877433f957a363ad78b228e13a8e5215f2d6593")
  ("editorconfig-emacs" . "b18fcf7fdea1ce84b7fdc60360ad8016b5c00d79")
  ("el-get" . "dfc31d6fa215d40f2eed4a693974a5875065c0d1")
- ("emacs-libvterm" . "92add72b728e47852ea1e95dc9f08d01b33d4bf0")
  ("emacs-web-server" . "4ca58302169fee8544fac77556794df42c792345")
  ("emacs-websocket" . "2195e1247ecb04c30321702aa5f5618a51c329c5")
  ("emacs-which-key" . "38d4308d1143b61e4004b6e7a940686784e51500")
