@@ -5,6 +5,7 @@
 * Package Management
 
 #+begin_src emacs-lisp
+;;; config.el --- Tangled from config.org  -*- lexical-binding: t; -*-
 ;; Straight.el is configured in init.el
 ;; All packages installed via straight.el (git-based)
 
