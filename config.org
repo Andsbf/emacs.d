@@ -81,7 +81,7 @@ there's no active region."
 (define-key global-map (kbd "C-)") 'ando/reset-text-size)
 (define-key global-map (kbd "C-+") 'text-scale-increase)
 (define-key global-map (kbd "C-=") 'text-scale-increase)
-(define-key global-map (kbd "C-_") 'text-scale-decrease)
+;; (define-key global-map (kbd "C-_") 'text-scale-decrease)
 (define-key global-map (kbd "C--") 'text-scale-decrease)
 #+end_src
 
