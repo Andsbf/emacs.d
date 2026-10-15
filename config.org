@@ -777,6 +777,18 @@ there's no active region."
   :mode "\\.nix\\'")
 #+end_src
 
+** Markdown Preview (mdr in the browser)
+
+[[https://github.com/Andsbf/mdr-preview][mdr-preview]] renders the buffer with mdr and keeps it live in the browser.
+Needs an mdr with =--export html --allow-connect= (CleverCloud/mdr#79); until a
+release has it, from the fork: =nix profile add --no-write-lock-file github:Andsbf/mdr=.
+
+#+begin_src emacs-lisp
+(use-package mdr-preview
+  :straight (:host github :repo "Andsbf/mdr-preview")
+  :bind ("C-c M" . mdr-preview-mode)) ; no markdown major mode here to own a local binding
+#+end_src
+
 * Code Editing Tools
 
 #+begin_src emacs-lisp
