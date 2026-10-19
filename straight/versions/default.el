@@ -36,7 +36,7 @@
  ("magit" . "96301f011542936e888049a211051c25542fc9ac")
  ("marginalia" . "35064463bf1506315e66ca6e095a278e5388bb13")
  ("markdown-mode" . "1f72cefa6a4b759f90e335e4908725a721b17ad9")
- ("mdr-preview" . "16d73c27f837acd8dee004a6cf02991fab80241a")
+ ("mdr-preview" . "3a01540a1f3949b16ae77eea46ef1c3bfa6ffe09")
  ("melpa" . "adbdf03557a845c56935b40a4cd7f9e1dbcf92ab")
  ("minions" . "c83cad7b408fa1b35b19f302da266532aba0ca98")
  ("moody" . "c733279a3912024c82c85c6d1f734008c00942cc")
